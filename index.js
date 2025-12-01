@@ -34,7 +34,8 @@ swaggerSetup(app);
 //   origin: process.env.CORS_ORIGIN
 // }));
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://45.138.158.158:5173'],
+  origin: "*",
+  // origin: ['http://localhost:5173', 'http://45.138.158.158:5173'],
   credentials: true
 }));
 
@@ -43,6 +44,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // API Routes
 app.use("/api", router);
+
+ 
 
 // Health check endpoint
 app.get("/", (req, res) => {
@@ -77,8 +80,15 @@ app.use((err, req, res, next) => {
   });
 });
 
+
+// HTTPS uchun self-signed sertifikat
+const httpsOptions = {
+  key: fs.readFileSync('./server.key'),
+  cert: fs.readFileSync('./server.cert')
+};
+
 // Start server on all interfaces (0.0.0.0)
-const server = app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, httpsOptions, '0.0.0.0', () => {
   console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
   console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api/doc`);
   console.log(`\n💡 To create super admin, run: node seed.js`);
