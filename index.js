@@ -10,7 +10,7 @@ const os = require('os');
 const swaggerSetup = require("./utils/swagger")
 
 const app = express();
-const PORT = config.port;
+const PORT = 4000; // Force port 4000 for testing
 
 // Get VPS public IP
 // let serverIP = '127.0.0.1';
@@ -33,8 +33,8 @@ swaggerSetup(app);
 app.use(cors({
   origin: process.env.CORS_ORIGIN
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // API Routes
 app.use("/api", router);
@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
 // Start server on all interfaces (0.0.0.0)
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
-  console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api`);
+  console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api/doc`);
   console.log(`\n💡 To create super admin, run: node seed.js`);
   
   // Initialize notification service

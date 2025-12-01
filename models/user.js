@@ -10,7 +10,8 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     minlength: 3,
-    maxlength: 50
+    maxlength: 50,
+    sparse: true  // Allow multiple documents with null/undefined values
   },
   email: {
     type: String,
@@ -29,9 +30,9 @@ const UserSchema = new mongoose.Schema({
     enum: ['super_admin', 'admin', 'sector_admin'],
     default: 'sector_admin'
   },
-  sector: {
+  sector: { 
     type: String,
-    enum: ['ecology', 'health', 'security', 'all', "appe"],
+    enum: ['ecology', 'health', 'security', 'all', "appeals", "other", "tasks", "komunal"],
     default: null
   },
   isActive: {

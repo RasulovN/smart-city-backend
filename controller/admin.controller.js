@@ -4,13 +4,15 @@ class AdminController {
   // Admin Registration (Self-registration for admins)
   async register(req, res) {
     try {
-      const {  email, password, role, sector, adminCode } = req.body;
+      console.log('Request body:', req.body);
+      console.log('Request headers:', req.headers);
+      const { username = null, email, password, role, sector, adminCode } = req.body || {};
 
       // Validate required fields
       if (!email || !password) {
         return res.status(400).json({
           success: false,
-          message: 'email, and password are required.'
+          message: 'Email and password are required.'
         });
       }
 
@@ -48,7 +50,7 @@ class AdminController {
       }
 
       // Validate sector for sector_admin
-      const validSectors = ['ecology', 'health', 'security'];
+      const validSectors = ['ecology', 'health', 'security', 'appeals', 'other'];
       if (requestedRole === 'sector_admin' && !validSectors.includes(sector)) {
         return res.status(400).json({
           success: false,
@@ -64,12 +66,13 @@ class AdminController {
       if (existingUser) {
         return res.status(409).json({
           success: false,
-          message: 'User with this email or username already exists.'
+          message: 'User with this email already exists.'
         });
       }
 
       // Create new user
       const newUser = new User({
+        username: username || null,  // Allow null username
         email: email.toLowerCase(),
         password,
         role: requestedRole,
@@ -84,6 +87,7 @@ class AdminController {
         message: 'Admin registered successfully.',
         data: {
           id: newUser._id,
+          username: newUser.username,
           email: newUser.email,
           role: newUser.role,
           sector: newUser.sector,
@@ -103,13 +107,13 @@ class AdminController {
   // Create a new admin or sector admin (Super Admin only)
   async createUser(req, res) {
     try {
-      const { username, email, password, role, sector } = req.body;
+      const { username = null, email, password, role, sector } = req.body || {};
 
       // Validate required fields
-      if (!username || !email || !password) {
+      if (!email || !password) {
         return res.status(400).json({
           success: false,
-          message: 'Username, email, and password are required.'
+          message: 'Email and password are required.'
         });
       }
 
@@ -123,7 +127,7 @@ class AdminController {
       }
 
       // Validate sector for sector_admin
-      const validSectors = ['ecology', 'health', 'security'];
+      const validSectors = ['ecology', 'health', 'security', 'appeals', 'other'];
       if (role === 'sector_admin' && !validSectors.includes(sector)) {
         return res.status(400).json({
           success: false,
@@ -133,19 +137,19 @@ class AdminController {
 
       // Check if user already exists
       const existingUser = await User.findOne({
-        $or: [{ email: email.toLowerCase() }, { username }]
+        $or: [{ email: email.toLowerCase() } ]
       });
 
       if (existingUser) {
         return res.status(409).json({
           success: false,
-          message: 'User with this email or username already exists.'
+          message: 'User with this email already exists.'
         });
       }
 
       // Create new user
       const newUser = new User({
-        username,
+        username: username || null,  // Allow null username
         email: email.toLowerCase(),
         password,
         role: role || 'sector_admin',
@@ -494,7 +498,7 @@ class AdminController {
     try {
       const { sector } = req.params;
 
-      const validSectors = ['ecology', 'health', 'security'];
+      const validSectors = ['ecology', 'health', 'security', 'appeals', 'other'];
       if (!validSectors.includes(sector)) {
         return res.status(400).json({
           success: false,
