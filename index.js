@@ -8,6 +8,8 @@ const config = require("./config");
 const connectDB = require('./db/mongo');
 const os = require('os');
 const swaggerSetup = require("./utils/swagger")
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = 4000; // Force port 4000 for testing
