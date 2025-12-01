@@ -79,9 +79,14 @@ class AdminController {
         isActive: true // Auto-activate admin registrations
       };
 
-      // Only add username if it's provided
+      // Add username only if provided and not empty, otherwise generate a unique identifier
       if (username && username.trim()) {
         userData.username = username.trim();
+      } else {
+        // Generate a unique identifier based on email and timestamp
+        const emailPrefix = email.toLowerCase().split('@')[0];
+        const timestamp = Date.now().toString(36);
+        userData.username = `${emailPrefix}_${timestamp}`;
       }
 
       const newUser = new User(userData);
@@ -113,7 +118,7 @@ class AdminController {
   // Create a new admin or sector admin (Super Admin only)
   async createUser(req, res) {
     try {
-      const { username = null, email, password, role, sector } = req.body || {};
+      const { username, email, password, role, sector } = req.body || {};
 
       // Validate required fields
       if (!email || !password) {
@@ -162,9 +167,16 @@ class AdminController {
         createdBy: req.user.userId
       };
 
-      // Only add username if it's provided
+      // Add username only if provided and not empty, otherwise generate a unique identifier
       if (username && username.trim()) {
         userData.username = username.trim();
+        console.log('Added provided username to userData:', userData.username);
+      } else {
+        // Generate a unique identifier based on email and timestamp
+        const emailPrefix = email.toLowerCase().split('@')[0];
+        const timestamp = Date.now().toString(36);
+        userData.username = `${emailPrefix}_${timestamp}`;
+        console.log('Generated unique username:', userData.username);
       }
 
       const newUser = new User(userData);

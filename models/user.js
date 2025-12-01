@@ -7,11 +7,9 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: false,
-    unique: true,
     trim: true,
     minlength: 3,
-    maxlength: 50,
-    sparse: true  // Allow multiple documents with null/undefined values
+    maxlength: 50
   },
   email: {
     type: String,
@@ -50,6 +48,12 @@ const UserSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Create partial unique index for username (only when username is not null)
+UserSchema.index({ username: 1 }, { 
+  unique: true, 
+  partialFilterExpression: { username: { $exists: true, $ne: null, $ne: '' } } 
 });
 
 // Hash password before saving
