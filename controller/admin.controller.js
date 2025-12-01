@@ -50,7 +50,7 @@ class AdminController {
       }
 
       // Validate sector for sector_admin
-      const validSectors = ['ecology', 'health', 'security', 'appeals', 'other'];
+      const validSectors = ['ecology', 'health', 'security', 'all', "appeals", "tasks", "healthcare", "education", "transport", "infrastructure", "social", "economic", "management", "utilities", "other"];
       if (requestedRole === 'sector_admin' && !validSectors.includes(sector)) {
         return res.status(400).json({
           success: false,
@@ -118,7 +118,7 @@ class AdminController {
   // Create a new admin or sector admin (Super Admin only)
   async createUser(req, res) {
     try {
-      const { username, email, password, role, sector } = req.body || {};
+      const { username, email, phone, password, role, sector } = req.body || {};
 
       // Validate required fields
       if (!email || !password) {
@@ -138,7 +138,7 @@ class AdminController {
       }
 
       // Validate sector for sector_admin
-      const validSectors = ['ecology', 'health', 'security', 'appeals', 'other'];
+      const validSectors = ['ecology', 'health', 'security', 'all', "appeals", "tasks", "healthcare", "education", "transport", "infrastructure", "social", "economic", "management", "utilities", "other"];
       if (role === 'sector_admin' && !validSectors.includes(sector)) {
         return res.status(400).json({
           success: false,
@@ -161,6 +161,7 @@ class AdminController {
       // Create new user object
       const userData = {
         email: email.toLowerCase(),
+        phone,
         password,
         role: role || 'sector_admin',
         sector: role === 'admin' ? 'all' : sector,
@@ -190,6 +191,7 @@ class AdminController {
           id: newUser._id,
           username: newUser.username,
           email: newUser.email,
+          phone: newUser.phone,
           role: newUser.role,
           sector: newUser.sector,
           isActive: newUser.isActive,
@@ -288,7 +290,7 @@ class AdminController {
   async updateUser(req, res) {
     try {
       const { id } = req.params;
-      const { username, email, role, sector, isActive } = req.body;
+      const { username, email, phone, role, sector, isActive } = req.body;
 
       const user = await User.findById(id);
 
@@ -346,6 +348,7 @@ class AdminController {
           id: user._id,
           username: user.username,
           email: user.email,
+          phone: user.phone,
           role: user.role,
           sector: user.sector,
           isActive: user.isActive,
@@ -522,7 +525,7 @@ class AdminController {
     try {
       const { sector } = req.params;
 
-      const validSectors = ['ecology', 'health', 'security', 'appeals', 'other'];
+      const validSectors = ['ecology', 'health', 'security', 'all', "appeals", "tasks", "healthcare", "education", "transport", "infrastructure", "social", "economic", "management", "utilities", "other"];
       if (!validSectors.includes(sector)) {
         return res.status(400).json({
           success: false,
@@ -547,6 +550,9 @@ class AdminController {
       });
     }
   }
+
+ 
+
 }
 
 module.exports = new AdminController();

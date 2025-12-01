@@ -18,6 +18,13 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  phone: {
+    type: String,
+    required: false,
+    trim: true,
+    minlength: 9,
+    maxlength: 15
+  },
   password: {
     type: String,
     required: true,
@@ -30,7 +37,7 @@ const UserSchema = new mongoose.Schema({
   },
   sector: { 
     type: String,
-    enum: ['ecology', 'health', 'security', 'all', "appeals", "other", "tasks", "komunal"],
+    enum: ['ecology', 'health', 'security', 'all', "appeals", "tasks", "healthcare", "education", "transport", "infrastructure", "social", "economic", "management", "utilities", "other"],
     default: null
   },
   isActive: {
