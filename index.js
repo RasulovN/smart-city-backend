@@ -6,18 +6,25 @@ const mongoose = require("mongoose");
 const router = require("./routes/index.route");
 const config = require("./config");
 const connectDB = require('./db/mongo');
+const os = require('os');
 
 const app = express();
 const PORT = config.port;
 
+// Get VPS public IP
+let serverIP = '127.0.0.1';
+const networkInterfaces = os.networkInterfaces();
+for (const iface of Object.values(networkInterfaces)) {
+  for (const alias of iface) {
+    if (alias.family === 'IPv4' && !alias.internal) {
+      serverIP = alias.address;
+      break;
+    }
+  }
+}
+
 // Connect to MongoDB
 connectDB();
-// mongoose.connect(config.mongoUrl)
-//   .then(() => console.log("✅ MongoDB connected successfully"))
-//   .catch(err => {
-//     console.error("❌ MongoDB connection error:", err);
-//     process.exit(1);
-//   });
 
 // Middleware
 app.use(cors());
@@ -60,10 +67,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on: http://localhost:${PORT}`);
-  console.log(`📚 API Documentation: http://localhost:${PORT}/api`);
+// Start server on all interfaces (0.0.0.0)
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
+  console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api`);
   console.log(`\n💡 To create super admin, run: node seed.js`);
   
   // Initialize notification service
