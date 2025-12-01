@@ -70,15 +70,21 @@ class AdminController {
         });
       }
 
-      // Create new user
-      const newUser = new User({
-        username: username || null,  // Allow null username
+      // Create new user object
+      const userData = {
         email: email.toLowerCase(),
         password,
         role: requestedRole,
         sector: requestedRole === 'admin' ? 'all' : sector,
         isActive: true // Auto-activate admin registrations
-      });
+      };
+
+      // Only add username if it's provided
+      if (username && username.trim()) {
+        userData.username = username.trim();
+      }
+
+      const newUser = new User(userData);
 
       await newUser.save();
 
@@ -147,15 +153,21 @@ class AdminController {
         });
       }
 
-      // Create new user
-      const newUser = new User({
-        username: username || null,  // Allow null username
+      // Create new user object
+      const userData = {
         email: email.toLowerCase(),
         password,
         role: role || 'sector_admin',
         sector: role === 'admin' ? 'all' : sector,
         createdBy: req.user.userId
-      });
+      };
+
+      // Only add username if it's provided
+      if (username && username.trim()) {
+        userData.username = username.trim();
+      }
+
+      const newUser = new User(userData);
 
       await newUser.save();
 

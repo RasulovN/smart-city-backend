@@ -30,9 +30,14 @@ connectDB();
 swaggerSetup(app);
 
 // Middleware
+// app.use(cors({
+//   origin: process.env.CORS_ORIGIN
+// }));
 app.use(cors({
-  origin: process.env.CORS_ORIGIN
+  origin: ['http://localhost:5173', 'http://45.138.158.158:5173'],
+  credentials: true
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
