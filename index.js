@@ -85,8 +85,8 @@ app.use((err, req, res, next) => {
 
 // HTTPS uchun self-signed sertifikat
 const httpsOptions = {
-  // key: fs.readFileSync('./server.key'),
-  // cert: fs.readFileSync('./server.cert')
+  key: fs.readFileSync('./server.key'),
+  cert: fs.readFileSync('./server.cert')
 };
 
 // Start server on all interfaces (0.0.0.0)
