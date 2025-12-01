@@ -27,7 +27,9 @@ for (const iface of Object.values(networkInterfaces)) {
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
