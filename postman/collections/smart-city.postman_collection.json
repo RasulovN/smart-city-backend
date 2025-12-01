@@ -1,0 +1,619 @@
+{
+  "info": {
+    "_postman_id": "02849069-fc2b-49b7-a40b-cd68396ca8ce",
+    "name": "smart-city",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "18548029",
+    "_collection_link": "https://adfgdg-4615.postman.co/workspace/a0cc6190-4f74-4986-b7f3-198cab75cf5a/collection/18548029-02849069-fc2b-49b7-a40b-cd68396ca8ce?action=share&source=collection_link&creator=18548029"
+  },
+  "item": [
+    {
+      "name": "super admin",
+      "item": [
+        {
+          "name": "super admin register",
+          "id": "a9849e10-5103-4d90-b58b-627a2fcca6f7",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \r\n\"email\": \"nurbekrasulov71@gmail.com\",\r\n\"password\": \"admin123\",\r\n\"role\": \"admin\",\r\n\"adminCode\": \"admin2025\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "super admin Login",
+          "id": "05aeac3a-7044-4beb-9544-67d61d2d0688",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"nurbekrasulov71@gmail.com\",\r\n    \"password\": \"smart123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Users",
+          "id": "af3eb66a-345f-43b1-93c8-08c57f26523b",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJkMTZkZmQ3MGIyNjUzNjUyNDc5MDUiLCJ1c2VybmFtZSI6InN1cGVyYWRtaW4iLCJlbWFpbCI6Im51cmJla3Jhc3Vsb3Y3MUBnbWFpbC5jb20iLCJyb2xlIjoic3VwZXJfYWRtaW4iLCJzZWN0b3IiOiJhbGwiLCJpYXQiOjE3NjQ1NjI3MTUsImV4cCI6MTc2NDY0OTExNX0.FP-HgMmPvndJS_kJRA4uHLyJTzBTEtzIglaz_UiiAyw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Users ID",
+          "id": "2042648f-5d67-4463-8b50-70c226eb8409",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJkMTZkZmQ3MGIyNjUzNjUyNDc5MDUiLCJ1c2VybmFtZSI6InN1cGVyYWRtaW4iLCJlbWFpbCI6Im51cmJla3Jhc3Vsb3Y3MUBnbWFpbC5jb20iLCJyb2xlIjoic3VwZXJfYWRtaW4iLCJzZWN0b3IiOiJhbGwiLCJpYXQiOjE3NjQ1NjI3MTUsImV4cCI6MTc2NDY0OTExNX0.FP-HgMmPvndJS_kJRA4uHLyJTzBTEtzIglaz_UiiAyw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/admin/users/692930dacf38478c8349ef65",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "692930dacf38478c8349ef65"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ADD admin",
+          "id": "2256a3c1-22cd-4c07-b56a-0178e186833c",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MmJhZDIyYzQzNTZlNTYxNzBlMDciLCJlbWFpbCI6Im51cmJla3Jhc3Vsb3Y3MUBnbWFpbC5jb20iLCJyb2xlIjoic2VjdG9yX2FkbWluIiwic2VjdG9yIjoiYWxsIiwiaWF0IjoxNzY0MzA2NTY5LCJleHAiOjE3NjQzOTI5Njl9.-MNXceGLoEEivLxbjlB9ninfKD2QjneFCtEoRCf1SQs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"cityadmin\",\r\n  \"email\": \"admin@smartcity.uz\",\r\n  \"password\": \"admin123\",\r\n  \"role\": \"admin\",\r\n  \"sector\": \"all\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ADD sector admin",
+          "id": "1540bfd0-4647-4777-89ec-0fca209cc0eb",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MmJhZDIyYzQzNTZlNTYxNzBlMDciLCJlbWFpbCI6Im51cmJla3Jhc3Vsb3Y3MUBnbWFpbC5jb20iLCJyb2xlIjoic2VjdG9yX2FkbWluIiwic2VjdG9yIjoiYWxsIiwiaWF0IjoxNzY0MzA2NTY5LCJleHAiOjE3NjQzOTI5Njl9.-MNXceGLoEEivLxbjlB9ninfKD2QjneFCtEoRCf1SQs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"ecology\",\r\n  \"email\": \"ecology@smartcity.uz\", \r\n  \"password\": \"ecology123\",\r\n  \"role\": \"sector_admin\",\r\n  \"sector\": \"ecology\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "f7760bd9-ddeb-44d7-b57e-8247c0f4ac01"
+    },
+    {
+      "name": "sector admin",
+      "item": [
+        {
+          "name": "Login",
+          "id": "2eadf50c-f9bc-4c59-b383-a9cc2d2d250e",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    // \"username\": \"ecology\",\r\n    \"email\": \"ecology@smartcity.uz\", \r\n    \"password\": \"ecology123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "id": "efa0024c-71ac-46e0-b513-4b97dd668815",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    // \"username\": \"ecology\",\r\n    \"email\": \"ecology@smartcity.uz\", \r\n    \"password\": \"ecology123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/logout",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Password change",
+          "id": "ca81c072-965b-4ffa-b33e-5924b640154b",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"currentPassword\": \"ecology1234\", \r\n    \"newPassword\": \"ecology123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/change-password",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh token",
+          "id": "c116e8cf-39e2-4208-b2f1-074ac9fe0dc3",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//     \"currentPassword\": \"ecology1234\", \r\n//     \"newPassword\": \"ecology123\"\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/refresh-token",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Profile",
+          "id": "88b1a5c7-4df5-4bdd-947a-c8208f70adfd",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/profile",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "df0d7970-4d88-48dd-94ad-c02239624f9e"
+    },
+    {
+      "name": "appeals admin",
+      "item": [
+        {
+          "name": "overview",
+          "id": "387e73de-d2c5-41d4-8ea8-3893fb9f69a9",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/auth/sectors/appeals/overview",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "auth",
+                "sectors",
+                "appeals",
+                "overview"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "creeate appeals",
+          "id": "24c930cb-20fa-4623-a14d-1db4fde3ca0b",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"firstName\": \"John2\",\r\n    \"lastName\": \"Doe2\",\r\n    \"email\": \"deltaforce824@gmail.com\",  // or phone \r\n    // \"phone\": \"998330033953\",  // or email\r\n    \"title\": \"test mavzu\",\r\n    \"message\": \"tets message\",\r\n    \"type\": \"complaint\",\r\n    \"sector\": \"economic\",\r\n    \"priority\": \"low\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/sectors/appeals",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "sectors",
+                "appeals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get appeals",
+          "id": "cef93b9e-b9f7-42a5-ac7e-fa0ad8d37ab1",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTI5MzBkYWNmMzg0NzhjODM0OWVmNjUiLCJ1c2VybmFtZSI6ImVjb2xvZ3kiLCJlbWFpbCI6ImVjb2xvZ3lAc21hcnRjaXR5LnV6Iiwicm9sZSI6InNlY3Rvcl9hZG1pbiIsInNlY3RvciI6ImVjb2xvZ3kiLCJpYXQiOjE3NjQzMDc0OTEsImV4cCI6MTc2NDM5Mzg5MX0.FEMqWl9jwFkRMb1zysZiXZ4dhPm9Y49ffclzkJQtUrE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://45.138.158.158:4000/api/sectors/appeals",
+              "protocol": "http",
+              "host": [
+                "45",
+                "138",
+                "158",
+                "158"
+              ],
+              "port": "4000",
+              "path": [
+                "api",
+                "sectors",
+                "appeals"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "1789d692-182b-4b2d-ba4f-5c832f0252d5"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "workspace": {
+    "id": "a0cc6190-4f74-4986-b7f3-198cab75cf5a"
+  },
+  "entities": {
+    "collections": [
+      "..\\postman\\collections\\smart-city.postman_collection.json"
+    ],
+    "environments": [],
+    "specs": [],
+    "flows": [],
+    "globals": []
+  }
+}

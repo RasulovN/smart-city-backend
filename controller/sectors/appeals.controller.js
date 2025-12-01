@@ -7,7 +7,7 @@ const logger = require('../../utils/logger');
 class AppealsController {
     
     // Create new appeal
-    async addApeals(req, res, next) {
+    async createApeals(req, res, next) {
         try {
             // Check validation errors
             const errors = validationResult(req);

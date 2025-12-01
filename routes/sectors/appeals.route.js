@@ -5,6 +5,125 @@ const { verifyToken, checkRole } = require('../../middleware/auth.middleware');
 const logger = require('../../middleware/logger');
 const router = express.Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     AppealCreate:
+ *       type: object
+ *       required:
+ *         - firstName
+ *         - lastName
+ *         - title
+ *         - message
+ *         - type
+ *         - sector
+ *       properties:
+ *         firstName:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 50
+ *           example: John
+ *         lastName:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 50
+ *           example: Doe
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: john.doe@example.com
+ *         phone:
+ *           type: string
+ *           pattern: '^[\+]?[0-9\s\-\(\)]{10,}$'
+ *           example: +998901234567
+ *         title:
+ *           type: string
+ *           minLength: 5
+ *           maxLength: 200
+ *           example: Street lighting issue
+ *         message:
+ *           type: string
+ *           minLength: 10
+ *           maxLength: 2000
+ *           example: The street lights on Main Street are not working properly, causing safety concerns for pedestrians at night.
+ *         type:
+ *           type: string
+ *           enum: [complaint, suggestion, question, request, appreciation, other]
+ *           example: complaint
+ *         sector:
+ *           type: string
+ *           enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+ *           example: infrastructure
+ *         priority:
+ *           type: string
+ *           enum: [low, medium, high, urgent]
+ *           default: medium
+ *           example: medium
+ *         location:
+ *           type: object
+ *           properties:
+ *             district:
+ *               type: string
+ *               maxLength: 100
+ *               example: Chilanzar
+ *             address:
+ *               type: string
+ *               maxLength: 500
+ *               example: Main Street 123
+ *     AppealStatusUpdate:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           enum: [open, in_progress, waiting_response, closed, rejected]
+ *           example: in_progress
+ *         adminResponse:
+ *           type: string
+ *           maxLength: 1000
+ *           example: Thank you for your appeal. We are investigating this issue and will respond within 24 hours.
+ *         followUpRequired:
+ *           type: boolean
+ *           example: true
+ *         followUpDate:
+ *           type: string
+ *           format: date
+ *           example: 2023-12-15
+ *     AppealRating:
+ *       type: object
+ *       required:
+ *         - score
+ *       properties:
+ *         score:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 5
+ *           example: 4
+ *         feedback:
+ *           type: string
+ *           maxLength: 500
+ *           example: The issue was resolved quickly and efficiently.
+ *     BulkStatusUpdate:
+ *       type: object
+ *       required:
+ *         - appealIds
+ *         - status
+ *       properties:
+ *         appealIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["64a1b2c3d4e5f6789abcdef", "64a1b2c3d4e5f6789abcdefg"]
+ *         status:
+ *           type: string
+ *           enum: [open, in_progress, waiting_response, closed, rejected]
+ *           example: in_progress
+ *         adminResponse:
+ *           type: string
+ *           maxLength: 1000
+ *           example: Bulk update applied to selected appeals.
+ */
+
 // Validation middleware
 const validateAppeal = [
     body('firstName')
@@ -96,15 +215,135 @@ const validateQuery = [
     query('sortOrder').optional().isIn(['asc', 'desc'])
 ];
 
+/**
+ * @swagger
+ * tags:
+ *   name: Appeals
+ *   description: Citizen appeals and complaints management
+ */
+
 // Public routes (no authentication required)
 
+/**
+ * @swagger
+ * /sectors/appeals:
+ *   post:
+ *     tags: [Appeals]
+ *     summary: Create new appeal
+ *     description: Submit a new citizen appeal or complaint
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AppealCreate'
+ *     responses:
+ *       201:
+ *         description: Appeal created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Appeal created successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Appeal'
+ *       400:
+ *         description: Invalid input data
+ *       500:
+ *         description: Internal server error
+ */
 // Create new appeal
 router.post('/',
     logger,
     validateAppeal,
-    appealsController.addApeals
+    appealsController.createApeals
 );
 
+/**
+ * @swagger
+ * /sectors/appeals:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get all appeals
+ *     description: Retrieve all appeals with filters and pagination (public read access)
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of items per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [open, in_progress, waiting_response, closed, rejected]
+ *         description: Filter by status
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [complaint, suggestion, question, request, appreciation, other]
+ *         description: Filter by appeal type
+ *       - in: query
+ *         name: sector
+ *         schema:
+ *           type: string
+ *           enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+ *         description: Filter by sector
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [low, medium, high, urgent]
+ *         description: Filter by priority
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, updatedAt, title, status, priority]
+ *         description: Sort field
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Appeals retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appeal'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationResponse/properties/pagination'
+ *       500:
+ *         description: Internal server error
+ */
 // Get all appeals with filters and pagination (public read access)
 router.get('/',
     logger,
@@ -112,6 +351,38 @@ router.get('/',
     appealsController.getApeals
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/my:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get user's own appeals
+ *     description: Retrieve appeals submitted by the current user
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: User email to filter appeals (optional, uses requester email if not provided)
+ *     responses:
+ *       200:
+ *         description: User appeals retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appeal'
+ *       500:
+ *         description: Internal server error
+ */
 // Get user's own appeals
 router.get('/my',
     logger,
@@ -119,6 +390,38 @@ router.get('/my',
     appealsController.getMyAppeals
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/{id}:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get appeal by ID
+ *     description: Retrieve a specific appeal by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Appeal ID
+ *     responses:
+ *       200:
+ *         description: Appeal retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Appeal'
+ *       404:
+ *         description: Appeal not found
+ *       500:
+ *         description: Internal server error
+ */
 // Get single appeal by ID
 router.get('/:id',
     logger,
@@ -126,6 +429,36 @@ router.get('/:id',
     appealsController.getApealById
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/{id}/rate:
+ *   post:
+ *     tags: [Appeals]
+ *     summary: Rate an appeal
+ *     description: Submit a rating for a closed appeal
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Appeal ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AppealRating'
+ *     responses:
+ *       200:
+ *         description: Appeal rated successfully
+ *       400:
+ *         description: Invalid input data or appeal not eligible for rating
+ *       404:
+ *         description: Appeal not found
+ *       500:
+ *         description: Internal server error
+ */
 // Rate an appeal (public, only for closed appeals)
 router.post('/:id/rate',
     logger,
@@ -136,6 +469,42 @@ router.post('/:id/rate',
 
 // Admin routes (authentication required)
 
+/**
+ * @swagger
+ * /sectors/appeals/{id}/status:
+ *   put:
+ *     tags: [Appeals]
+ *     summary: Update appeal status
+ *     description: Update the status of an appeal (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Appeal ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AppealStatusUpdate'
+ *     responses:
+ *       200:
+ *         description: Appeal status updated successfully
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: Appeal not found
+ *       500:
+ *         description: Internal server error
+ */
 // Update appeal status
 router.put('/:id/status',
     logger,
@@ -146,6 +515,34 @@ router.put('/:id/status',
     appealsController.updateApealStatus
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/{id}:
+ *   delete:
+ *     tags: [Appeals]
+ *     summary: Delete appeal
+ *     description: Delete an appeal permanently (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Appeal ID
+ *     responses:
+ *       200:
+ *         description: Appeal deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: Appeal not found
+ *       500:
+ *         description: Internal server error
+ */
 // Delete appeal
 router.delete('/:id',
     logger,
@@ -155,6 +552,33 @@ router.delete('/:id',
     appealsController.deleteApeals
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/statistics:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get appeals statistics
+ *     description: Retrieve comprehensive statistics about appeals (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 365
+ *         description: Period in days for statistics calculation
+ *     responses:
+ *       200:
+ *         description: Statistics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 // Get statistics (admin only)
 router.get('/admin/statistics',
     logger,
@@ -164,6 +588,57 @@ router.get('/admin/statistics',
     appealsController.getStatistics
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/export:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Export appeals data
+ *     description: Export appeals data to CSV format (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 1000
+ *           default: 100
+ *         description: Number of items to export
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [open, in_progress, waiting_response, closed, rejected]
+ *         description: Filter by status
+ *       - in: query
+ *         name: sector
+ *         schema:
+ *           type: string
+ *           enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+ *         description: Filter by sector
+ *     responses:
+ *       200:
+ *         description: Appeals exported successfully
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 // Export appeals (admin only)
 router.get('/admin/export',
     logger,
@@ -174,6 +649,34 @@ router.get('/admin/export',
 );
 
 // Analytics routes (admin only)
+
+/**
+ * @swagger
+ * /sectors/appeals/admin/dashboard:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get dashboard analytics
+ *     description: Retrieve dashboard analytics data (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 365
+ *         description: Period in days for analytics
+ *     responses:
+ *       200:
+ *         description: Dashboard analytics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/dashboard',
     logger,
     verifyToken,
@@ -182,6 +685,33 @@ router.get('/admin/dashboard',
     appealsController.getDashboardAnalytics
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/location:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get location analytics
+ *     description: Retrieve appeals analytics by location (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 365
+ *         description: Period in days for analysis
+ *     responses:
+ *       200:
+ *         description: Location analytics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/location',
     logger,
     verifyToken,
@@ -190,6 +720,33 @@ router.get('/admin/location',
     appealsController.getLocationAnalytics
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/performance:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get performance metrics
+ *     description: Retrieve performance metrics for appeal resolution (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 365
+ *         description: Period in days for metrics
+ *     responses:
+ *       200:
+ *         description: Performance metrics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/performance',
     logger,
     verifyToken,
@@ -198,6 +755,33 @@ router.get('/admin/performance',
     appealsController.getPerformanceMetrics
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/engagement:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get user engagement metrics
+ *     description: Retrieve user engagement analytics (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 365
+ *         description: Period in days for engagement analysis
+ *     responses:
+ *       200:
+ *         description: User engagement metrics retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/engagement',
     logger,
     verifyToken,
@@ -206,6 +790,49 @@ router.get('/admin/engagement',
     appealsController.getUserEngagement
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/report:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Generate comprehensive report
+ *     description: Generate comprehensive appeal report (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly, yearly]
+ *         description: Report type
+ *       - in: query
+ *         name: startDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Report start date (YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Report end date (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Report generated successfully
+ *       400:
+ *         description: Invalid report parameters
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/report',
     logger,
     verifyToken,
@@ -216,6 +843,38 @@ router.get('/admin/report',
     appealsController.generateReport
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/follow-up:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get follow-up appeals
+ *     description: Retrieve appeals requiring follow-up (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [low, medium, high, urgent]
+ *         description: Filter by priority
+ *       - in: query
+ *         name: daysOverdue
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Filter by days overdue
+ *     responses:
+ *       200:
+ *         description: Follow-up appeals retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/follow-up',
     logger,
     verifyToken,
@@ -225,6 +884,25 @@ router.get('/admin/follow-up',
     appealsController.getFollowUpAppeals
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/admin/notification-health:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get notification health status
+ *     description: Retrieve notification system health metrics (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Notification health status retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/admin/notification-health',
     logger,
     verifyToken,
@@ -233,6 +911,34 @@ router.get('/admin/notification-health',
 );
 
 // Bulk operations (admin only)
+
+/**
+ * @swagger
+ * /sectors/appeals/admin/bulk-status:
+ *   patch:
+ *     tags: [Appeals]
+ *     summary: Bulk update appeals status
+ *     description: Update status for multiple appeals at once (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BulkStatusUpdate'
+ *     responses:
+ *       200:
+ *         description: Appeals status updated successfully
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
 router.patch('/admin/bulk-status',
     logger,
     verifyToken,
@@ -246,6 +952,34 @@ router.patch('/admin/bulk-status',
     appealsController.bulkUpdateStatus
 );
 
+/**
+ * @swagger
+ * /sectors/appeals/health:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Health check
+ *     description: Check if the appeals service is running
+ *     responses:
+ *       200:
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Appeals service is running
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                   description: Server uptime in seconds
+ */
 // Health check route
 router.get('/health',
     logger,

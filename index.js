@@ -7,12 +7,14 @@ const router = require("./routes/index.route");
 const config = require("./config");
 const connectDB = require('./db/mongo');
 const os = require('os');
+const swaggerSetup = require("./utils/swagger")
 
 const app = express();
 const PORT = config.port;
 
 // Get VPS public IP
-let serverIP = '127.0.0.1';
+// let serverIP = '127.0.0.1';
+let serverIP = 'localhost';
 const networkInterfaces = os.networkInterfaces();
 for (const iface of Object.values(networkInterfaces)) {
   for (const alias of iface) {
@@ -25,6 +27,7 @@ for (const iface of Object.values(networkInterfaces)) {
 
 // Connect to MongoDB
 connectDB();
+swaggerSetup(app);
 
 // Middleware
 app.use(cors({
