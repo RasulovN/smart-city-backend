@@ -2,24 +2,27 @@
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
-const router = require("./routes/index.route");
-const config = require("./config");
-const connectDB = require('./db/mongo');
 const os = require('os');
-const swaggerSetup = require("./utils/swagger")
 const fs = require('fs');
-const path = require('path');
 const https = require("https");
+const http = require("http");
+const proccess = require("process");
+
+
+const router = require("./routes/index.route");
+const swaggerSetup = require("./utils/swagger");
+const connectDB = require("./db/mongo");
 
 const app = express();
-const PORT = 4000; // Force port 4000 for testing
 
-// Get VPS public IP
-// let serverIP = '127.0.0.1';
+// Ports
+const HTTP_PORT = proccess.env.HTTP || 4000;
+const HTTPS_PORT = proccess.env.HTTPS || 4443; // HTTPS uchun boshqa port tavsiya qilinadi
+
+// Get real server IP
 let serverIP = 'localhost';
-const networkInterfaces = os.networkInterfaces();
-for (const iface of Object.values(networkInterfaces)) {
+const interfaces = os.networkInterfaces();
+for (const iface of Object.values(interfaces)) {
   for (const alias of iface) {
     if (alias.family === 'IPv4' && !alias.internal) {
       serverIP = alias.address;
@@ -28,104 +31,48 @@ for (const iface of Object.values(networkInterfaces)) {
   }
 }
 
-// Connect to MongoDB
+// Connect DB
 connectDB();
 swaggerSetup(app);
 
-// Middleware
-// app.use(cors({
-//   origin: process.env.CORS_ORIGIN
-// }));
+// Middlewares
 app.use(cors({
   origin: "*",
-  // origin: ['http://localhost:5173', 'http://45.138.158.158:5173'],
   credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// API Routes
+// Routes
 app.use("/api", router);
 
- 
-
-// Health check endpoint
+// Health check
 app.get("/", (req, res) => {
   res.json({
-    success: true,
-    message: "Smart City API is running",
-    version: "1.0.0",
-    endpoints: {
-      auth: "/api/auth",
-      admin: "/api/admin",
-      environment: "/api/environment",
-      traffic: "/api/traffic",
-      transport: "/api/transport"
-    }
+    status: "running",
+    http: `http://${serverIP}:${HTTP_PORT}`,
+    https: `https://${serverIP}:${HTTPS_PORT}`
   });
 });
 
-// 404 handler
+// 404
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Endpoint not found"
-  });
+  res.status(404).json({ message: "Endpoint not found" });
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal server error"
-  });
-});
-
-
-// HTTPS uchun self-signed sertifikat
-// const httpsOptions = {
-//   // key: fs.readFileSync('./server.key'),
-//   // cert: fs.readFileSync('./server.cert')
-// };
-
-// // Start server on all interfaces (0.0.0.0)
-// const server = app.listen(PORT, httpsOptions, '0.0.0.0', () => {
-//   console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
-//   console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api/doc`);
-//   console.log(`\n💡 To create super admin, run: node seed.js`);
-  
-//   // Initialize notification service
-//   try {
-//     const notificationService = require('./services/appeals/notification.service');
-//     notificationService.setupScheduledTasks();
-//     console.log('✅ Notification service initialized');
-//   } catch (error) {
-//     console.error('❌ Error initializing notification service:', error.message);
-//   }
-// });
-
-
-
-
-// HTTPS uchun self-signed sertifikat
+// Create HTTPS certificates
 const httpsOptions = {
   key: fs.readFileSync('./server.key'),
   cert: fs.readFileSync('./server.cert')
 };
 
+// Start HTTP Server
+http.createServer(app).listen(HTTP_PORT, "0.0.0.0", () => {
+  console.log(`🌐 HTTP running on: http://${serverIP}:${HTTP_PORT}`);
+});
 
-// Start HTTPS server
-https.createServer(httpsOptions, app).listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 HTTPS Server running on: https://${serverIP}:${PORT}`);
-  console.log(`📚 API Documentation: https://${serverIP}:${PORT}/api/doc`);
-
-  try {
-    const notificationService = require('./services/appeals/notification.service');
-    notificationService.setupScheduledTasks();
-    console.log('✅ Notification service initialized');
-  } catch (error) {
-    console.error('❌ Error initializing notification service:', error.message);
-  }
+// Start HTTPS Server
+https.createServer(httpsOptions, app).listen(HTTPS_PORT, "0.0.0.0", () => {
+  console.log(`🔐 HTTPS running on: https://${serverIP}:${HTTPS_PORT}`);
 });
