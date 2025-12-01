@@ -10,6 +10,7 @@ const os = require('os');
 const swaggerSetup = require("./utils/swagger")
 const fs = require('fs');
 const path = require('path');
+const https = require("https");
 
 const app = express();
 const PORT = 4000; // Force port 4000 for testing
@@ -84,18 +85,42 @@ app.use((err, req, res, next) => {
 
 
 // HTTPS uchun self-signed sertifikat
+// const httpsOptions = {
+//   // key: fs.readFileSync('./server.key'),
+//   // cert: fs.readFileSync('./server.cert')
+// };
+
+// // Start server on all interfaces (0.0.0.0)
+// const server = app.listen(PORT, httpsOptions, '0.0.0.0', () => {
+//   console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
+//   console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api/doc`);
+//   console.log(`\n💡 To create super admin, run: node seed.js`);
+  
+//   // Initialize notification service
+//   try {
+//     const notificationService = require('./services/appeals/notification.service');
+//     notificationService.setupScheduledTasks();
+//     console.log('✅ Notification service initialized');
+//   } catch (error) {
+//     console.error('❌ Error initializing notification service:', error.message);
+//   }
+// });
+
+
+
+
+// HTTPS uchun self-signed sertifikat
 const httpsOptions = {
   key: fs.readFileSync('./server.key'),
   cert: fs.readFileSync('./server.cert')
 };
 
-// Start server on all interfaces (0.0.0.0)
-const server = app.listen(PORT, httpsOptions, '0.0.0.0', () => {
-  console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
-  console.log(`📚 API Documentation: http://${serverIP}:${PORT}/api/doc`);
-  console.log(`\n💡 To create super admin, run: node seed.js`);
-  
-  // Initialize notification service
+
+// Start HTTPS server
+https.createServer(httpsOptions, app).listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 HTTPS Server running on: https://${serverIP}:${PORT}`);
+  console.log(`📚 API Documentation: https://${serverIP}:${PORT}/api/doc`);
+
   try {
     const notificationService = require('./services/appeals/notification.service');
     notificationService.setupScheduledTasks();
