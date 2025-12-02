@@ -1,0 +1,135 @@
+# Smart City UI API Documentation
+openapi: 3.0.3
+info:
+  title: Smart City UI API
+  version: 1.0.0
+  description: User Interface endpoints for smart city management system
+
+servers:
+  - url: http://localhost:4000/api
+    description: Development server
+  - url: https://45.138.158.158/api
+    description: Production server
+
+components:
+  schemas:
+    Sector:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "64a1b2c3d4e5f6789abcdef"
+        name:
+          type: string
+          example: "Infrastructure"
+        slug:
+          type: string
+          example: "infrastructure"
+        description:
+          type: string
+          example: "Infrastructure management and maintenance"
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SectorList:
+      type: object
+      properties:
+        sectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sector'
+        count:
+          type: integer
+          example: 8
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Sectors retrieved successfully"
+        data:
+          type: object
+          nullable: true
+          description: "Response data (varies by endpoint)"
+
+  responses:
+    Success:
+      description: Operation successful
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Invalid request parameters"
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Internal server error"
+
+tags:
+  - name: UI
+    description: User interface endpoints
+
+paths:
+  /ui/sectors:
+    get:
+      tags: [UI]
+      summary: Get all sectors
+      description: Retrieve all active sectors for UI display
+      responses:
+        '200':
+          description: Sectors retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SectorList'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /ui/statistika:
+    get:
+      tags: [UI]
+      summary: Get sector statistics
+      description: Retrieve sector statistics for UI dashboard
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SectorList'
+        '500':
+          $ref: '#/components/responses/InternalError'

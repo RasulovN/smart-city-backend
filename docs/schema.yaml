@@ -1,0 +1,380 @@
+# Shared schemas for Smart City API
+openapi: 3.0.3
+info:
+  title: Smart City API - Shared Components
+  version: 1.0.0
+  description: Common schemas and components shared across all API modules
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "64a1b2c3d4e5f6789abcdef"
+        firstName:
+          type: string
+          example: "Ali"
+        lastName:
+          type: string
+          example: "Valiyev"
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: ["super_admin", "admin", "sector_admin", "user"]
+        sector:
+          type: string
+          enum: ["ecology", "security", "infrastructure", "health", "education", "social", "economic", "other"]
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+        data:
+          type: object
+          nullable: true
+          description: "Response data (varies by endpoint)"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "An error occurred"
+        error:
+          type: string
+          nullable: true
+
+    Pagination:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 5
+        totalItems:
+          type: integer
+          example: 47
+        itemsPerPage:
+          type: integer
+          example: 20
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPrevPage:
+          type: boolean
+          example: false
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Login successful
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            refreshToken:
+              type: string
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          example: oldpassword123
+        newPassword:
+          type: string
+          format: password
+          example: newpassword123
+
+    UserRegistration:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - role
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+        role:
+          type: string
+          enum: [super_admin, admin, sector_admin, user]
+          example: admin
+        sector:
+          type: string
+          enum: [ecology, security, infrastructure, health, education, social, economic, other]
+          example: ecology
+
+    UserUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        role:
+          type: string
+          enum: [super_admin, admin, sector_admin, user]
+          example: admin
+        sector:
+          type: string
+          enum: [ecology, security, infrastructure, health, education, social, economic, other]
+          example: ecology
+        isActive:
+          type: boolean
+          example: true
+
+    Appeal:
+      type: object
+      properties:
+        _id: 
+          type: string
+        firstName: 
+          type: string
+        lastName: 
+          type: string
+        email: 
+          type: string
+          format: email
+        phone: 
+          type: string
+        title: 
+          type: string
+        message: 
+          type: string
+        type: 
+          type: string
+          enum: [complaint, suggestion, question, request, appreciation, other]
+        sector: 
+          type: string
+          enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+        priority: 
+          type: string
+          enum: [low, medium, high, urgent]
+        status: 
+          type: string
+          enum: [open, in_progress, waiting_response, closed, rejected]
+        rating: 
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        adminResponse: 
+          type: string
+          nullable: true
+        location:
+          type: object
+          properties:
+            district: 
+              type: string
+            address: 
+              type: string
+        createdAt: 
+          type: string
+          format: date-time
+        updatedAt: 
+          type: string
+          format: date-time
+
+    AppealCreate:
+      type: object
+      required: [firstName, lastName, title, message, type, sector]
+      properties:
+        firstName: 
+          type: string
+          minLength: 2
+          maxLength: 50
+        lastName: 
+          type: string
+          minLength: 2
+          maxLength: 50
+        email: 
+          type: string
+          format: email
+        phone: 
+          type: string
+          pattern: '^[\+]?[0-9\s\-\(\)]{10,}$'
+        title: 
+          type: string
+          minLength: 5
+          maxLength: 200
+        message: 
+          type: string
+          minLength: 10
+          maxLength: 2000
+        type: 
+          type: string
+          enum: [complaint, suggestion, question, request, appreciation, other]
+        sector: 
+          type: string
+          enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+        priority: 
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        location:
+          type: object
+          properties:
+            district: 
+              type: string
+              maxLength: 100
+            address: 
+              type: string
+              maxLength: 500
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Invalid input data"
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Unauthorized"
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Forbidden - Admin access required"
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Resource not found"
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Resource already exists"
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Internal server error"
+
+  parameters:
+    idParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: MongoDB ObjectId
+    pageQuery:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number
+    limitQuery:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Number of items per page
+
+tags:
+  - name: Common
+    description: Common schemas and responses used across all modules

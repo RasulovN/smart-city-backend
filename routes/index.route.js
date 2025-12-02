@@ -12,21 +12,12 @@ router.use("/users", require("./user.routes.js"));
 
 // Sector routes
 router.use("/sectors", require("./sector.route.js"));
+// UI routes
+router.use("/ui", require("./sectors/ui.route"));
 
 
 
 
 
-
-
-// Sector-specific routes (protected with role-based access)
-// Environment routes - Ecology sector
-router.use("/environment", require("./environmentRoutes.js"));
-
-// Traffic routes - Security sector
-router.use("/traffic", require("./trafficRoutes"));
-
-// Transport routes - Security sector
-router.use("/transport", require("./transportRoutes"));
 
 module.exports = router;

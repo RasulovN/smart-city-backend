@@ -48,7 +48,7 @@ const appealsSchema = new Schema({
         type: String,
         required: true,
         enum: {
-            values: ['complaint', 'suggestion', 'question', 'request', 'appreciation', 'other'],
+            values: ['complaint', 'suggestion', 'question', 'request', 'appreciation',  'other'],
             message: 'Noto\'g\'ri murojaat turi'
         }
     },
@@ -56,7 +56,7 @@ const appealsSchema = new Schema({
         type: String,
         required: true,
         enum: {
-            values: ['infrastructure', 'environment', 'transport', 'health', 'education', 'social', 'economic', 'other', "ecology"],
+            values: ['infrastructure', 'environment', 'transport', 'health', 'education', 'social', 'economic', 'utilities', 'other', "ecology"],
             message: 'Noto\'g\'ri sektor'
         }
     },

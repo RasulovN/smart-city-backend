@@ -1,0 +1,1422 @@
+# Smart City Admin API Documentation
+openapi: 3.0.3
+info:
+  title: Smart City Admin API
+  version: 1.0.0
+  description: Comprehensive admin panel API documentation for smart city management system
+
+servers:
+  - url: http://localhost:4000/api
+    description: Development server
+  - url: https://45.138.158.158/api
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ====================== COMPANY/ORGANIZATION ======================
+    Company:
+      type: object
+      required:
+        - name
+        - description
+        - sector
+      properties:
+        id:
+          type: string
+          example: "692d748412de33a371c16635"
+        name:
+          type: string
+          example: "Qarshi City Administration"
+        slug:
+          type: string
+          example: "qarshi-city-administration"
+        description:
+          type: string
+          example: "Municipal administration of Qarshi city"
+        sector:
+          type: string
+          enum: [infrastructure, environment, transport, health, education, social, economic, other, ecology]
+          example: "infrastructure"
+        email:
+          type: string
+          format: email
+          example: "info@qarshi.uz"
+        phone:
+          type: number
+          example: 998712345678
+        inn:
+          type: string
+          example: "123456789"
+        type:
+          type: string
+          enum: [government, nongovernment, other]
+          example: "government"
+        address:
+          type: object
+          properties:
+            fullAddress:
+              type: string
+              example: "Qarshi, Uzbekistan"
+            long:
+              type: number
+              example: 41.2995
+            lat:
+              type: number
+              example: 69.2401
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CompanyCreate:
+      type: object
+      required:
+        - name
+        - description
+        - sector
+      properties:
+        name:
+          type: string
+          example: "Qarshi City Administration"
+        description:
+          type: string
+          example: "Municipal administration of Qarshi city"
+        sector:
+          type: string
+          enum: [infrastructure, environment, transport, health, education, social, economic, other, ecology]
+          example: "infrastructure"
+        email:
+          type: string
+          format: email
+          example: "info@qarshi.uz"
+        phone:
+          type: number
+          example: 998712345678
+        inn:
+          type: string
+          example: "123456789"
+        type:
+          type: string
+          enum: [government, nongovernment, other]
+          example: "government"
+        address:
+          type: object
+          properties:
+            fullAddress:
+              type: string
+              example: "Qarshi, Uzbekistan"
+            long:
+              type: number
+              example: 41.2995
+            lat:
+              type: number
+              example: 69.2401
+        isActive:
+          type: boolean
+          example: true
+
+    CompanyUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Updated Qarshi City Administration"
+        description:
+          type: string
+          example: "Updated municipal administration description"
+        sector:
+          type: string
+          enum: [infrastructure, environment, transport, health, education, social, economic, other, ecology]
+          example: "infrastructure"
+        email:
+          type: string
+          format: email
+          example: "updated@qarshi.uz"
+        phone:
+          type: number
+          example: 998712345679
+        inn:
+          type: string
+          example: "987654321"
+        type:
+          type: string
+          enum: [government, nongovernment, other]
+          example: "government"
+        address:
+          type: object
+          properties:
+            fullAddress:
+              type: string
+              example: "Updated Qarshi, Uzbekistan"
+            long:
+              type: number
+              example: 41.2996
+            lat:
+              type: number
+              example: 69.2402
+        isActive:
+          type: boolean
+          example: true
+
+    CompanyList:
+      type: object
+      properties:
+        companies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Company'
+        pagination:
+          type: object
+          properties:
+            currentPage:
+              type: integer
+              example: 1
+            totalPages:
+              type: integer
+              example: 5
+            totalItems:
+              type: integer
+              example: 47
+            itemsPerPage:
+              type: integer
+              example: 10
+            hasNextPage:
+              type: boolean
+              example: true
+            hasPrevPage:
+              type: boolean
+              example: false
+
+    CompanyStatistics:
+      type: object
+      properties:
+        overview:
+          type: object
+          properties:
+            totalCompanies:
+              type: integer
+              example: 100
+            activeCompanies:
+              type: integer
+              example: 85
+            inactiveCompanies:
+              type: integer
+              example: 15
+            governmentCompanies:
+              type: integer
+              example: 60
+            nongovernmentCompanies:
+              type: integer
+              example: 40
+        sectors:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                example: "infrastructure"
+              count:
+                type: integer
+                example: 25
+              activeCount:
+                type: integer
+                example: 20
+
+    # ====================== SECTOR ======================
+    Sector:
+      type: object
+      required:
+        - name
+        - slug
+        - description
+      properties:
+        id:
+          type: string
+          example: "692d748412de33a371c16635"
+        name:
+          type: string
+          example: "Technology"
+        slug:
+          type: string
+          example: "technology"
+        description:
+          type: string
+          example: "Information Technology and Digital Services sector"
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SectorCreate:
+      type: object
+      required:
+        - name
+        - slug
+        - description
+      properties:
+        name:
+          type: string
+          example: "Technology"
+        slug:
+          type: string
+          example: "technology"
+        description:
+          type: string
+          example: "Information Technology and Digital Services sector"
+        isActive:
+          type: boolean
+          example: true
+
+    SectorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Updated Technology"
+        slug:
+          type: string
+          example: "updated-technology"
+        description:
+          type: string
+          example: "Updated description"
+        isActive:
+          type: boolean
+          example: false
+
+    # ====================== USER ======================
+    UserRegistration:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - role
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+        role:
+          type: string
+          enum: [super_admin, admin, sector_admin, user]
+          example: admin
+        sector:
+          type: string
+          enum: [ecology, security, infrastructure, health, education, social, economic, other]
+          example: ecology
+
+    UserUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        role:
+          type: string
+          enum: [super_admin, admin, sector_admin, user]
+          example: admin
+        sector:
+          type: string
+          enum: [ecology, security, infrastructure, health, education, social, economic, other]
+          example: ecology
+        isActive:
+          type: boolean
+          example: true
+
+    # ====================== COMMON ======================
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+        data:
+          type: object
+          description: "Response data (varies by endpoint)"
+
+    Pagination:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 5
+        totalItems:
+          type: integer
+          example: 47
+        itemsPerPage:
+          type: integer
+          example: 10
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPrevPage:
+          type: boolean
+          example: false
+
+  parameters:
+    idParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: MongoDB ObjectId
+    slugParam:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+      description: URL-friendly slug
+    pageQuery:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number
+    limitQuery:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      description: Number of items per page
+    sectorParam:
+      name: sector
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [infrastructure, environment, transport, health, education, social, economic, other, ecology]
+      description: Sector name
+    typeParam:
+      name: type
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [government, nongovernment, other]
+      description: Organization type
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Invalid input data"
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Unauthorized"
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Forbidden - Admin access required"
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Resource not found"
+
+tags:
+  - name: Admin
+    description: Admin operations and user management
+  - name: Users
+    description: User management operations
+  - name: Sectors
+    description: Sector management operations
+  - name: Companies
+    description: Company/Organization management operations
+
+# ====================== PATHS ======================
+paths:
+  # ====================== USER MANAGEMENT ======================
+  /admin/register:
+    post:
+      tags: [Admin]
+      summary: Register new user
+      description: Register a new user in the system (public endpoint)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: true
+                message: "User registered successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "User already exists"
+        '500':
+          description: Internal server error
+
+  /admin/users:
+    post:
+      tags: [Users]
+      summary: Create new user
+      description: Create a new user (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "User already exists"
+
+    get:
+      tags: [Users]
+      summary: Get all users
+      description: Retrieve all users with pagination (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/pageQuery'
+        - $ref: '#/components/parameters/limitQuery'
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name or email
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [super_admin, admin, sector_admin, user]
+          description: Filter by role
+        - name: sector
+          in: query
+          schema:
+            type: string
+            enum: [ecology, security, infrastructure, health, education, social, economic, other]
+          description: Filter by sector
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          users:
+                            type: array
+                            items:
+                              type: object
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      description: Retrieve user details by ID (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Users]
+      summary: Update user
+      description: Update user information (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Users]
+      summary: Delete user
+      description: Delete user permanently (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/users/{id}/deactivate:
+    patch:
+      tags: [Users]
+      summary: Deactivate user
+      description: Deactivate user account (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: User deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/users/{id}/activate:
+    patch:
+      tags: [Users]
+      summary: Activate user
+      description: Activate user account (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: User activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/users/{id}/reset-password:
+    post:
+      tags: [Users]
+      summary: Reset user password
+      description: Reset user password (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/users/sector/{sector}:
+    get:
+      tags: [Users]
+      summary: Get users by sector
+      description: Retrieve users filtered by sector (Admin and Super Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: sector
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [ecology, security, infrastructure, health, education, social, economic, other]
+          description: Sector name
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ====================== SECTOR MANAGEMENT ======================
+  /admin/sectors:
+    post:
+      tags: [Sectors]
+      summary: Create new sector
+      description: Create a new sector (Admin and Super Admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectorCreate'
+      responses:
+        '201':
+          description: Sector created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Sector'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Sector with this name or slug already exists"
+
+    get:
+      tags: [Sectors]
+      summary: Get all sectors
+      description: Retrieve all sectors with pagination (Public access)
+      parameters:
+        - $ref: '#/components/parameters/pageQuery'
+        - $ref: '#/components/parameters/limitQuery'
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        '200':
+          description: Sectors retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          sectors:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Sector'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /admin/sectors/{id}:
+    get:
+      tags: [Sectors]
+      summary: Get sector by ID
+      description: Retrieve sector details by ID (Public access)
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Sector retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Sector'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/sectors/slug/{slug}:
+    get:
+      tags: [Sectors]
+      summary: Get sector by slug
+      description: Retrieve sector details by slug (Public access)
+      parameters:
+        - $ref: '#/components/parameters/slugParam'
+      responses:
+        '200':
+          description: Sector retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Sector'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Sectors]
+      summary: Update sector
+      description: Update sector information (Admin and Super Admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectorUpdate'
+      responses:
+        '200':
+          description: Sector updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Sector'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Sector with this name or slug already exists"
+
+    delete:
+      tags: [Sectors]
+      summary: Delete sector
+      description: Delete sector permanently (Admin and Super Admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Sector deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/sectors/{id}/deactivate:
+    patch:
+      tags: [Sectors]
+      summary: Deactivate sector
+      description: Deactivate sector (Admin and Super Admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Sector deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/sectors/{id}/activate:
+    patch:
+      tags: [Sectors]
+      summary: Activate sector
+      description: Activate sector (Admin and Super Admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Sector activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ====================== COMPANY/ORGANIZATION MANAGEMENT ======================
+  /admin/companies:
+    post:
+      tags: [Companies]
+      summary: Create new company/organization
+      description: Create a new organization (government or non-government)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyCreate'
+      responses:
+        '201':
+          description: Organization created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Organization with this name or slug already exists"
+
+    get:
+      tags: [Companies]
+      summary: Get all companies/organizations
+      description: Retrieve all organizations with filtering, pagination, and search
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/pageQuery'
+        - $ref: '#/components/parameters/limitQuery'
+        - name: sector
+          in: query
+          schema:
+            type: string
+            enum: [infrastructure, environment, transport, health, education, social, economic, other, ecology]
+          description: Filter by sector
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [government, nongovernment, other]
+          description: Filter by organization type
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name, description, or INN
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+          description: Sort field
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        '200':
+          description: Organizations retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CompanyList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/companies/{id}:
+    get:
+      tags: [Companies]
+      summary: Get company/organization by ID
+      description: Retrieve organization details by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Organization retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Invalid organization ID format"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/companies/slug/{slug}:
+    get:
+      tags: [Companies]
+      summary: Get company/organization by slug
+      description: Retrieve organization details by slug
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/slugParam'
+      responses:
+        '200':
+          description: Organization retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Companies]
+      summary: Update company/organization
+      description: Update organization information
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyUpdate'
+      responses:
+        '200':
+          description: Organization updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Companies]
+      summary: Soft delete company/organization
+      description: Deactivate organization (soft delete)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Organization deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Invalid organization ID format"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/companies/{id}/hard:
+    delete:
+      tags: [Companies]
+      summary: Hard delete company/organization
+      description: Permanently delete organization (Super Admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Organization deleted permanently
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Invalid organization ID format"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Forbidden - Super Admin access required"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/companies/{id}/toggle-status:
+    patch:
+      tags: [Companies]
+      summary: Toggle company/organization status
+      description: Activate or deactivate organization
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Organization status toggled successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          isActive:
+                            type: boolean
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Invalid organization ID format"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/companies/statistics:
+    get:
+      tags: [Companies]
+      summary: Get company/organization statistics
+      description: Retrieve comprehensive statistics about organizations
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CompanyStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/companies/sector/{sector}:
+    get:
+      tags: [Companies]
+      summary: Get companies by sector
+      description: Retrieve organizations filtered by sector
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/sectorParam'
+        - $ref: '#/components/parameters/pageQuery'
+        - $ref: '#/components/parameters/limitQuery'
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: Filter by active status
+      responses:
+        '200':
+          description: Organizations in sector retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          companies:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Company'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Invalid sector"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/companies/type/{type}:
+    get:
+      tags: [Companies]
+      summary: Get companies by type
+      description: Retrieve organizations filtered by type (government/non-government)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/typeParam'
+        - $ref: '#/components/parameters/pageQuery'
+        - $ref: '#/components/parameters/limitQuery'
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: Filter by active status
+      responses:
+        '200':
+          description: Organizations by type retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          companies:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Company'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                message: "Invalid type. Must be: government, nongovernment, or other"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'

@@ -14,9 +14,9 @@ const app = express();
 const PORT = proccess.env.PORT || 4000;
 
 // Get real server IP
-let serverIP = '45.138.158.158';
+// let serverIP = '45.138.158.158';
 
-// let serverIP = 'localhost';
+let serverIP = 'localhost';
 const interfaces = os.networkInterfaces();
 for (const iface of Object.values(interfaces)) {
   for (const alias of iface) {

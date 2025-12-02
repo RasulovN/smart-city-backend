@@ -1,13 +1,143 @@
+// utils/swagger.js
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
+const path = require("path");
+const yaml = require("js-yaml");
 
+// Recursively find all YAML files in docs directory
+function findYamlFiles(dir, fileList = []) {
+  try {
+    const files = fs.readdirSync(dir);
+    
+    files.forEach(file => {
+      const filePath = path.join(dir, file);
+      const stat = fs.statSync(filePath);
+      
+      if (stat.isDirectory()) {
+        findYamlFiles(filePath, fileList);
+      } else if (file.endsWith('.yaml') || file.endsWith('.yml')) {
+        fileList.push(filePath);
+      }
+    });
+  } catch (error) {
+    console.error(`Error reading directory ${dir}:`, error.message);
+  }
+  
+  return fileList;
+}
+
+// Load and merge YAML files
+function loadYamlSpecs(docsPath) {
+  const yamlFiles = findYamlFiles(docsPath);
+  const specs = [];
+  
+  yamlFiles.forEach(filePath => {
+    try {
+      const content = fs.readFileSync(filePath, 'utf8');
+      const doc = yaml.load(content);
+      if (doc && typeof doc === 'object') {
+        specs.push(doc);
+        console.log(`Loaded YAML spec: ${path.basename(filePath)}`);
+      }
+    } catch (error) {
+      console.error(`Error loading YAML file ${filePath}:`, error.message);
+    }
+  });
+  
+  return specs;
+}
+
+// Merge multiple OpenAPI specs
+function mergeSpecs(specs) {
+  if (specs.length === 0) {
+    return {
+      openapi: "3.0.3",
+      info: {
+        title: "Smart City API",
+        version: "1.0.0",
+        description: "Smart City loyihasi uchun toʻliq backend API hujjatlari"
+      }
+    };
+  }
+  
+  // Start with the first spec as base
+  const merged = JSON.parse(JSON.stringify(specs[0]));
+  
+  // Merge additional specs
+  for (let i = 1; i < specs.length; i++) {
+    const spec = specs[i];
+    
+    // Merge paths
+    if (spec.paths) {
+      merged.paths = { ...merged.paths, ...spec.paths };
+    }
+    
+    // Merge components
+    if (spec.components) {
+      merged.components = merged.components || {};
+      
+      // Merge schemas
+      if (spec.components.schemas) {
+        merged.components.schemas = { 
+          ...merged.components.schemas, 
+          ...spec.components.schemas 
+        };
+      }
+      
+      // Merge securitySchemes
+      if (spec.components.securitySchemes) {
+        merged.components.securitySchemes = { 
+          ...merged.components.securitySchemes, 
+          ...spec.components.securitySchemes 
+        };
+      }
+      
+      // Merge responses
+      if (spec.components.responses) {
+        merged.components.responses = { 
+          ...merged.components.responses, 
+          ...spec.components.responses 
+        };
+      }
+      
+      // Merge parameters
+      if (spec.components.parameters) {
+        merged.components.parameters = { 
+          ...merged.components.parameters, 
+          ...spec.components.parameters 
+        };
+      }
+    }
+    
+    // Merge tags (avoid duplicates)
+    if (spec.tags) {
+      const existingTagNames = (merged.tags || []).map(tag => tag.name);
+      const newTags = spec.tags.filter(tag => !existingTagNames.includes(tag.name));
+      merged.tags = [...(merged.tags || []), ...newTags];
+    }
+  }
+  
+  return merged;
+}
+
+// Swagger definition
 const options = {
   definition: {
-    openapi: "3.0.0",
+    openapi: "3.0.3",
     info: {
       title: "Smart City API",
       version: "1.0.0",
-      description: "API Documentation for Smart City project - Comprehensive backend API for smart city management system",
+      description: "Smart City loyihasi uchun toʻliq backend API hujjatlari. Admin panel, murojaatlar, sektorlar, tashkilotlar va boshqa modullar.",
+      contact: {
+        name: "Smart City Dev Team",
+        url: "https://github.com/your-org/smart-city-backend",
+        email: "dev@smartcity.uz",
+      },
+      license: {
+        name: "MIT",
+        url: "https://opensource.org/licenses/MIT",
+      },
     },
     servers: [
       {
@@ -25,120 +155,109 @@ const options = {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
+          description: "JWT tokenni kiriting: Bearer <token>",
         },
       },
       schemas: {
+        // Common schemas that can be referenced across all modules
         User: {
           type: "object",
           properties: {
             _id: { type: "string", example: "64a1b2c3d4e5f6789abcdef" },
-            firstName: { type: "string", example: "John" },
-            lastName: { type: "string", example: "Doe" },
-            email: { type: "string", format: "email", example: "john.doe@example.com" },
-            role: { type: "string", enum: ["super_admin", "admin", "sector_admin", "user"], example: "admin" },
-            sector: { type: "string", enum: ["ecology", "security", "infrastructure", "health", "education", "social", "economic", "other"], example: "ecology" },
-            isActive: { type: "boolean", example: true },
+            firstName: { type: "string", example: "Ali" },
+            lastName: { type: "string", example: "Valiyev" },
+            email: { type: "string", format: "email" },
+            role: {
+              type: "string",
+              enum: ["super_admin", "admin", "sector_admin", "user"],
+            },
+            sector: {
+              type: "string",
+              enum: ["ecology", "infrastructure", "transport", "health", "education", "social", "economic", "other", "security"],
+              nullable: true,
+            },
+            isActive: { type: "boolean", default: true },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
           },
         },
-        LoginRequest: {
-          type: "object",
-          required: ["email", "password"],
-          properties: {
-            email: { type: "string", format: "email", example: "admin@example.com" },
-            password: { type: "string", format: "password", example: "password123" },
-          },
-        },
-        LoginResponse: {
+        ApiResponse: {
           type: "object",
           properties: {
             success: { type: "boolean", example: true },
-            message: { type: "string", example: "Login successful" },
-            data: {
-              type: "object",
-              properties: {
-                user: { $ref: "#/components/schemas/User" },
-                token: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
-                refreshToken: { type: "string" },
-              },
-            },
-          },
-        },
-        Appeal: {
-          type: "object",
-          properties: {
-            _id: { type: "string", example: "64a1b2c3d4e5f6789abcdef" },
-            firstName: { type: "string", example: "John" },
-            lastName: { type: "string", example: "Doe" },
-            email: { type: "string", format: "email", example: "john.doe@example.com" },
-            phone: { type: "string", example: "+998901234567" },
-            title: { type: "string", example: "Street lighting issue" },
-            message: { type: "string", example: "The street lights on Main Street are not working properly" },
-            type: { type: "string", enum: ["complaint", "suggestion", "question", "request", "appreciation", "other"], example: "complaint" },
-            sector: { type: "string", enum: ["infrastructure", "environment", "ecology", "transport", "health", "education", "social", "economic", "other"], example: "infrastructure" },
-            priority: { type: "string", enum: ["low", "medium", "high", "urgent"], example: "medium" },
-            status: { type: "string", enum: ["open", "in_progress", "waiting_response", "closed", "rejected"], example: "open" },
-            location: {
-              type: "object",
-              properties: {
-                district: { type: "string", example: "Chilanzar" },
-                address: { type: "string", example: "Main Street 123" },
-              },
-            },
-            createdAt: { type: "string", format: "date-time" },
-            updatedAt: { type: "string", format: "date-time" },
+            message: { type: "string" },
+            data: { type: "object", nullable: true },
           },
         },
         ErrorResponse: {
           type: "object",
           properties: {
             success: { type: "boolean", example: false },
-            message: { type: "string", example: "Error message" },
-            error: { type: "string", example: "Detailed error information" },
-          },
-        },
-        PaginationResponse: {
-          type: "object",
-          properties: {
-            data: { type: "array" },
-            pagination: {
-              type: "object",
-              properties: {
-                currentPage: { type: "integer", example: 1 },
-                totalPages: { type: "integer", example: 5 },
-                totalItems: { type: "integer", example: 100 },
-                itemsPerPage: { type: "integer", example: 20 },
-                hasNextPage: { type: "boolean", example: true },
-                hasPrevPage: { type: "boolean", example: false },
-              },
-            },
+            message: { type: "string" },
+            error: { type: "string", nullable: true },
           },
         },
       },
     },
     tags: [
-      { name: "Authentication", description: "User authentication and authorization" },
-      { name: "Admin", description: "Admin operations and user management" },
-      { name: "Users", description: "User management operations" },
-      { name: "Environment", description: "Environmental monitoring data" },
-      { name: "Traffic", description: "Traffic management data" },
-      { name: "Transport", description: "Public transport data" },
-      { name: "Appeals", description: "Citizen appeals and complaints management" },
+      // { name: "Auth", description: "Foydalanuvchi autentifikatsiyasi" },
+      { name: "Admin", description: "Admin panel operatsiyalari" },
+      { name: "Users", description: "Foydalanuvchilarni boshqarish" },
+      { name: "Sectors", description: "Sektorlar (yo'nalishlar)" },
+      { name: "Companies", description: "Tashkilotlar va korxonalar" },
+      { name: "Appeals", description: "Fuqarolar murojaatlari" },
     ],
+    // Global security (faqat auth kerak bo'lmagan endpointlar override qiladi)
+    security: [{ bearerAuth: [] }],
   },
+  // Only load YAML files, no JSDoc from route files
   apis: [
-    "./routes/*.js",           // All route files
-    "./routes/sectors/*.js",   // Sector-specific routes
-    "./controller/*.js",       // Controllers for additional context
+    "./docs/**/*.yaml",
+    "./docs/**/*.yml",
   ],
 };
 
+// Generate swagger specification
 const specs = swaggerJsdoc(options);
 
+// Load and merge additional YAML specifications
+const docsPath = path.join(__dirname, '../docs');
+const additionalSpecs = loadYamlSpecs(docsPath);
+const mergedSpecs = mergeSpecs([specs, ...additionalSpecs]);
+
+// Swagger UI configuration
+const swaggerUiOptions = {
+  customCss: `
+    .swagger-ui .topbar { 
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+      padding: 15px;
+    }
+    .swagger-ui .topbar .download-url-wrapper { display: none }
+    .swagger-ui .info { margin: 30px 0; }
+    .swagger-ui .scheme-container { background: #1f2937; padding: 15px; border-radius: 8px; }
+  `,
+  customSiteTitle: "Smart City API Docs",
+  customfavIcon: "/favicon.ico",
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: "list",
+    filter: true,
+    showExtensions: true,
+  },
+};
+
 module.exports = (app) => {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Smart City API Documentation',
-  }));
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(mergedSpecs, swaggerUiOptions)
+  );
+
+  // JSON formatda ham olish uchun (Postman, frontend)
+  app.get("/api-docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(mergedSpecs);
+  });
+
+  console.log("Swagger docs: http://localhost:4000/api-docs");
 };
