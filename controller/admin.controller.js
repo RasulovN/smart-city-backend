@@ -115,10 +115,20 @@ class AdminController {
       });
     }
   }
-  // Create a new admin or sector admin (Super Admin only)
+  // Create a new admin or sector admin (Role-based access control)
   async createUser(req, res) {
     try {
       const { username, email, phone, password, role, sector } = req.body || {};
+      const currentUserRole = req.user.role;
+      const currentUserId = req.user.userId;
+
+      // Check if current user has admin or super_admin role
+      if (!['admin', 'super_admin'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only admin and super_admin can create users.'
+        });
+      }
 
       // Validate required fields
       if (!email || !password) {
@@ -129,11 +139,26 @@ class AdminController {
       }
 
       // Validate role
-      const validRoles = ['admin', 'sector_admin'];
+      let validRoles;
+      if (currentUserRole === 'super_admin') {
+        validRoles = ['admin', 'sector_admin', 'super_admin'];
+      } else {
+        // admin role can only create sector_admin and admin users
+        validRoles = ['admin', 'sector_admin'];
+      }
+
       if (role && !validRoles.includes(role)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid role. Allowed roles: admin, sector_admin'
+          message: `Invalid role. ${currentUserRole === 'super_admin' ? 'Allowed roles: admin, sector_admin, super_admin' : 'Allowed roles: admin, sector_admin'}`
+        });
+      }
+
+      // Only super_admin can assign super_admin role
+      if (role === 'super_admin' && currentUserRole !== 'super_admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'Only super_admin can assign super_admin role.'
         });
       }
 
@@ -286,11 +311,21 @@ class AdminController {
     }
   }
 
-  // Update user
+  // Update user (Role-based access control)
   async updateUser(req, res) {
     try {
       const { id } = req.params;
       const { username, email, phone, role, sector, isActive } = req.body;
+      const currentUserRole = req.user.role;
+      const currentUserId = req.user.userId;
+
+      // Check if current user has admin or super_admin role
+      if (!['admin', 'super_admin'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only admin and super_admin can update users.'
+        });
+      }
 
       const user = await User.findById(id);
 
@@ -307,6 +342,33 @@ class AdminController {
           success: false,
           message: 'Cannot modify super admin.'
         });
+      }
+
+      // Role-based permission checks for updating user roles
+      if (role) {
+        // Only super_admin can assign super_admin role
+        if (role === 'super_admin' && currentUserRole !== 'super_admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Only super_admin can assign super_admin role.'
+          });
+        }
+
+        // Check if current user can assign the requested role
+        let allowedRoles;
+        if (currentUserRole === 'super_admin') {
+          allowedRoles = ['admin', 'sector_admin', 'super_admin'];
+        } else {
+          // admin role can only assign sector_admin and admin users
+          allowedRoles = ['admin', 'sector_admin'];
+        }
+
+        if (!allowedRoles.includes(role)) {
+          return res.status(403).json({
+            success: false,
+            message: `You cannot assign ${role} role. Allowed roles: ${allowedRoles.join(', ')}`
+          });
+        }
       }
 
       // Check for duplicate email/username
@@ -330,11 +392,12 @@ class AdminController {
       // Update fields
       if (username) user.username = username;
       if (email) user.email = email.toLowerCase();
-      if (role && ['admin', 'sector_admin'].includes(role)) {
+      if (role && ['admin', 'sector_admin', 'super_admin'].includes(role)) {
         user.role = role;
         if (role === 'admin') user.sector = 'all';
+        if (role === 'super_admin') user.sector = 'all';
       }
-      if (sector && ['ecology', 'health', 'security'].includes(sector)) {
+      if (sector && ['ecology', 'health', 'security', 'all', "appeals", "tasks", "healthcare", "education", "transport", "infrastructure", "social", "economic", "management", "utilities", "other"].includes(sector)) {
         user.sector = sector;
       }
       if (isActive !== undefined) user.isActive = isActive;
@@ -365,10 +428,19 @@ class AdminController {
     }
   }
 
-  // Delete user
+  // Delete user (Role-based access control)
   async deleteUser(req, res) {
     try {
       const { id } = req.params;
+      const currentUserRole = req.user.role;
+
+      // Check if current user has admin or super_admin role
+      if (!['admin', 'super_admin'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only admin and super_admin can delete users.'
+        });
+      }
 
       const user = await User.findById(id);
 
@@ -387,6 +459,17 @@ class AdminController {
         });
       }
 
+      // Additional role-based checks
+      if (currentUserRole === 'admin') {
+        // admin role cannot delete other admin users
+        if (user.role === 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Admin role cannot delete other admin users. Only super_admin can delete admin users.'
+          });
+        }
+      }
+
       await User.findByIdAndDelete(id);
 
       res.status(200).json({
@@ -403,10 +486,19 @@ class AdminController {
     }
   }
 
-  // Deactivate user (soft delete)
+  // Deactivate user (soft delete) - Role-based access control
   async deactivateUser(req, res) {
     try {
       const { id } = req.params;
+      const currentUserRole = req.user.role;
+
+      // Check if current user has admin or super_admin role
+      if (!['admin', 'super_admin'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only admin and super_admin can deactivate users.'
+        });
+      }
 
       const user = await User.findById(id);
 
@@ -423,6 +515,17 @@ class AdminController {
           success: false,
           message: 'Cannot deactivate super admin.'
         });
+      }
+
+      // Additional role-based checks
+      if (currentUserRole === 'admin') {
+        // admin role cannot deactivate other admin users
+        if (user.role === 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Admin role cannot deactivate other admin users. Only super_admin can deactivate admin users.'
+          });
+        }
       }
 
       user.isActive = false;
@@ -442,10 +545,19 @@ class AdminController {
     }
   }
 
-  // Activate user
+  // Activate user - Role-based access control
   async activateUser(req, res) {
     try {
       const { id } = req.params;
+      const currentUserRole = req.user.role;
+
+      // Check if current user has admin or super_admin role
+      if (!['admin', 'super_admin'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only admin and super_admin can activate users.'
+        });
+      }
 
       const user = await User.findById(id);
 
@@ -454,6 +566,17 @@ class AdminController {
           success: false,
           message: 'User not found.'
         });
+      }
+
+      // Additional role-based checks
+      if (currentUserRole === 'admin') {
+        // admin role cannot activate other admin users
+        if (user.role === 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Admin role cannot activate other admin users. Only super_admin can activate admin users.'
+          });
+        }
       }
 
       user.isActive = true;
@@ -473,11 +596,20 @@ class AdminController {
     }
   }
 
-  // Reset user password (Admin only)
+  // Reset user password - Role-based access control
   async resetUserPassword(req, res) {
     try {
       const { id } = req.params;
       const { newPassword } = req.body;
+      const currentUserRole = req.user.role;
+
+      // Check if current user has admin or super_admin role
+      if (!['admin', 'super_admin'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only admin and super_admin can reset user passwords.'
+        });
+      }
 
       if (!newPassword || newPassword.length < 6) {
         return res.status(400).json({
@@ -501,6 +633,17 @@ class AdminController {
           success: false,
           message: 'Cannot reset super admin password.'
         });
+      }
+
+      // Additional role-based checks for admin users
+      if (currentUserRole === 'admin') {
+        // admin role cannot reset other admin users' passwords
+        if (user.role === 'admin') {
+          return res.status(403).json({
+            success: false,
+            message: 'Admin role cannot reset other admin users passwords. Only super_admin can reset admin users passwords.'
+          });
+        }
       }
 
       user.password = newPassword;

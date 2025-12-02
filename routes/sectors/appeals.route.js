@@ -215,6 +215,11 @@ const validateQuery = [
     query('sortOrder').optional().isIn(['asc', 'desc'])
 ];
 
+const validateSectorParam = [
+    param('sector').isIn(['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other'])
+        .withMessage('Noto\'g\'ri sektor. Ruxsat berilgan sektorlar: infrastructure, environment, ecology, transport, health, education, social, economic, other')
+];
+
 /**
  * @swagger
  * tags:
@@ -350,6 +355,352 @@ router.get('/',
     validateQuery,
     appealsController.getApeals
 );
+
+/**
+ * @swagger
+ * /sectors/appeals/sector-appeals/{sector}:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get sector-specific appeals
+ *     description: Muayyan sektor boʻyicha filtrlangan murojaatlarni olish (faqat administrator va sektor administratorlari uchun)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sector
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+ *         description: Sector name to filter appeals
+ *         example: infrastructure
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [open, in_progress, waiting_response, closed, rejected]
+ *         description: Filter by status
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [complaint, suggestion, question, request, appreciation, other]
+ *         description: Filter by appeal type
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [low, medium, high, urgent]
+ *         description: Filter by priority
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search in title, message, name, or email
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, updatedAt, title, status, priority]
+ *           default: createdAt
+ *         description: Sort field
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Sector appeals retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     appeals:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Appeal'
+ *                     sector:
+ *                       type: string
+ *                       example: infrastructure
+ *                     sectorName:
+ *                       type: string
+ *                       example: Infrastructure
+ *                     statistics:
+ *                       type: object
+ *                       properties:
+ *                         totalAppeals:
+ *                           type: integer
+ *                         byStatus:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                               count:
+ *                                 type: integer
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationResponse/properties/pagination'
+ *                 filters:
+ *                   type: object
+ *       400:
+ *         description: Invalid sector parameter or query filters
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin or sector admin access required
+ *       500:
+ *         description: Internal server error
+ */
+/**
+ * @swagger
+ * /sectors/appeals/sectors:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get available sectors with appeal counts
+ *     description: Retrieve all sectors and their appeal statistics (Admin and sector admins only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Available sectors retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sectors:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           sector:
+ *                             type: string
+ *                           sectorName:
+ *                             type: string
+ *                           counts:
+ *                             type: object
+ *                             properties:
+ *                               total:
+ *                                 type: integer
+ *                               open:
+ *                                 type: integer
+ *                               inProgress:
+ *                                 type: integer
+ *                               closed:
+ *                                 type: integer
+ *                           percentage:
+ *                             type: object
+ *                             properties:
+ *                               open:
+ *                                 type: string
+ *                               inProgress:
+ *                                 type: string
+ *                               closed:
+ *                                 type: string
+ *                     userAccess:
+ *                       type: object
+ *                       properties:
+ *                         role:
+ *                           type: string
+ *                         sector:
+ *                           type: string
+ *                         canAccessAll:
+ *                           type: boolean
+ *                         sectorRestricted:
+ *                           type: boolean
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin or sector admin access required
+ *       500:
+ *         description: Internal server error
+ */
+// Get available sectors with appeal counts
+router.get('/sectors',
+    logger,
+    verifyToken, 
+    checkRole('admin', 'super_admin', 'sector_admin'),
+    appealsController.getAvailableSectors
+);
+
+/**
+ * @swagger
+ * /sectors/appeals/sector-appeals/{sector}:
+ *   get:
+ *     tags: [Appeals]
+ *     summary: Get sector-specific appeals
+ *     description: Muayyan sektor boʻyicha filtrlangan murojaatlarni olish (faqat administrator va sektor administratorlari uchun)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sector
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+ *         description: Sector name to filter appeals
+ *         example: infrastructure
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [open, in_progress, waiting_response, closed, rejected]
+ *         description: Filter by status
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [complaint, suggestion, question, request, appreciation, other]
+ *         description: Filter by appeal type
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [low, medium, high, urgent]
+ *         description: Filter by priority
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search in title, message, name, or email
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, updatedAt, title, status, priority]
+ *           default: createdAt
+ *         description: Sort field
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Sector appeals retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     appeals:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Appeal'
+ *                     sector:
+ *                       type: object
+ *                       properties:
+ *                         sector:
+ *                           type: string
+ *                         sectorName:
+ *                           type: string
+ *                         totalAppeals:
+ *                           type: integer
+ *                         accessLevel:
+ *                           type: string
+ *                         availableFilters:
+ *                           type: object
+ *                     statistics:
+ *                       type: object
+ *                       properties:
+ *                         totalAppeals:
+ *                           type: integer
+ *                         byStatus:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                               count:
+ *                                 type: integer
+ *                         byType:
+ *                           type: array
+ *                         byPriority:
+ *                           type: array
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginationResponse/properties/pagination'
+ *                 filters:
+ *                   type: object
+ *       400:
+ *         description: Invalid sector parameter or query filters
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin or sector admin access required
+ *       500:
+ *         description: Internal server error
+ */
+// Get only sector admin appeals (Admin and sector admins only)
+router.get('/sector-appeals/:sector',
+    logger,
+    verifyToken, 
+    checkRole('admin', 'super_admin', 'sector_admin'),
+    validateSectorParam,
+    validateQuery,
+    appealsController.getSectorAdminAppeals
+);
+
+
+
+
+
 
 /**
  * @swagger

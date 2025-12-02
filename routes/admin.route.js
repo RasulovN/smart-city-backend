@@ -181,7 +181,7 @@ router.post('/register', adminController.register);
  *   post:
  *     tags: [Admin]
  *     summary: Create new user
- *     description: Create a new user (Super Admin only)
+ *     description: Create a new user (Admin and Super Admin)
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -258,8 +258,8 @@ router.post('/register', adminController.register);
  */
 // All other routes require authentication and admin privileges
 
-// Super Admin only - Create new admin or sector admin
-router.post('/users', verifyToken, isSuperAdmin, adminController.createUser);
+// Admin and Super Admin - Create new admin or sector admin
+router.post('/users', verifyToken, isAdmin, adminController.createUser);
 
 // Admin and Super Admin - View users
 router.get('/users', verifyToken, isAdmin, adminController.getAllUsers);
@@ -300,7 +300,7 @@ router.get('/users/:id', verifyToken, isAdmin, adminController.getUserById);
  *   put:
  *     tags: [Admin]
  *     summary: Update user
- *     description: Update user information (Super Admin only)
+ *     description: Update user information (Admin and Super Admin)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -336,7 +336,7 @@ router.get('/users/:id', verifyToken, isAdmin, adminController.getUserById);
  *   delete:
  *     tags: [Admin]
  *     summary: Delete user
- *     description: Delete user permanently (Super Admin only)
+ *     description: Delete user permanently (Admin and Super Admin)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -358,9 +358,9 @@ router.get('/users/:id', verifyToken, isAdmin, adminController.getUserById);
  *       500:
  *         description: Internal server error
  */
-// Super Admin only - Modify users
-router.put('/users/:id', verifyToken, isSuperAdmin, adminController.updateUser);
-router.delete('/users/:id', verifyToken, isSuperAdmin, adminController.deleteUser);
+// Admin and Super Admin - Modify users
+router.put('/users/:id', verifyToken, isAdmin, adminController.updateUser);
+router.delete('/users/:id', verifyToken, isAdmin, adminController.deleteUser);
 
 /**
  * @swagger
@@ -368,7 +368,7 @@ router.delete('/users/:id', verifyToken, isSuperAdmin, adminController.deleteUse
  *   patch:
  *     tags: [Admin]
  *     summary: Deactivate user
- *     description: Deactivate user account (Super Admin only)
+ *     description: Deactivate user account (Admin and Super Admin)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -396,7 +396,7 @@ router.delete('/users/:id', verifyToken, isSuperAdmin, adminController.deleteUse
  *   patch:
  *     tags: [Admin]
  *     summary: Activate user
- *     description: Activate user account (Super Admin only)
+ *     description: Activate user account (Admin and Super Admin)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -424,7 +424,7 @@ router.delete('/users/:id', verifyToken, isSuperAdmin, adminController.deleteUse
  *   post:
  *     tags: [Admin]
  *     summary: Reset user password
- *     description: Reset user password (Super Admin only)
+ *     description: Reset user password (Admin and Super Admin)
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -446,9 +446,9 @@ router.delete('/users/:id', verifyToken, isSuperAdmin, adminController.deleteUse
  *       500:
  *         description: Internal server error
  */
-router.patch('/users/:id/deactivate', verifyToken, isSuperAdmin, adminController.deactivateUser);
-router.patch('/users/:id/activate', verifyToken, isSuperAdmin, adminController.activateUser);
-router.post('/users/:id/reset-password', verifyToken, isSuperAdmin, adminController.resetUserPassword);
+router.patch('/users/:id/deactivate', verifyToken, isAdmin, adminController.deactivateUser);
+router.patch('/users/:id/activate', verifyToken, isAdmin, adminController.activateUser);
+router.post('/users/:id/reset-password', verifyToken, isAdmin, adminController.resetUserPassword);
 
 
 

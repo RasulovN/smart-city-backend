@@ -6,6 +6,50 @@ const logger = require('../../utils/logger');
 
 class AppealsController {
     
+    // Helper method to format sector names (static)
+    static formatSectorName(sector) {
+        const sectorNames = {
+            'infrastructure': 'Infrastruktura',
+            'environment': 'Atrof-muhit',
+            'ecology': 'Ekologiya',
+            'transport': 'Transport',
+            'health': 'Sog\'liqni saqlash',
+            'education': 'Ta\'lim',
+            'social': 'Ijtimoiy',
+            'economic': 'Iqtisodiy',
+            'other': 'Boshqa'
+        };
+        return sectorNames[sector] || sector.charAt(0).toUpperCase() + sector.slice(1);
+    }
+    
+    // Helper method to validate sector access (static)
+    static async validateSectorAccess(userRole, userSector, requestedSector) {
+        // Super admin and admin can access all sectors
+        if (['super_admin', 'admin'].includes(userRole)) {
+            return { allowed: true, reason: 'full_access' };
+        }
+        
+        // Sector admin can only access their own sector
+        if (userRole === 'sector_admin') {
+            if (userSector === requestedSector) {
+                return { allowed: true, reason: 'own_sector' };
+            } else {
+                return { 
+                    allowed: false, 
+                    reason: 'sector_mismatch',
+                    message: `Siz faqat ${AppealsController.formatSectorName(userSector)} sektoridagi murojaatlarni ko'rishingiz mumkin`
+                };
+            }
+        }
+        
+        // Other roles cannot access sector appeals
+        return { 
+            allowed: false, 
+            reason: 'insufficient_role',
+            message: 'Sektor murojaatlarini ko\'rish uchun admin yoki sektor admin huquqlari kerak'
+        };
+    }
+
     // Create new appeal
     async createApeals(req, res, next) {
         try {
@@ -135,6 +179,242 @@ class AppealsController {
             });
         }
     }
+
+    // Get available sectors with appeal counts
+    async getAvailableSectors(req, res, next) {
+        try {
+            const userRole = req.user?.role;
+            const userSector = req.user?.sector;
+
+            // Get appeal counts by sector
+            const sectorCounts = await Appeal.aggregate([
+                {
+                    $group: {
+                        _id: '$sector',
+                        totalAppeals: { $sum: 1 },
+                        openAppeals: {
+                            $sum: {
+                                $cond: [{ $eq: ['$status', 'open'] }, 1, 0]
+                            }
+                        },
+                        inProgressAppeals: {
+                            $sum: {
+                                $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0]
+                            }
+                        },
+                        closedAppeals: {
+                            $sum: {
+                                $cond: [{ $eq: ['$status', 'closed'] }, 1, 0]
+                            }
+                        }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]);
+
+            // Format sector data
+            const sectorsData = sectorCounts.map(item => ({
+                sector: item._id,
+                sectorName: AppealsController.formatSectorName(item._id),
+                counts: {
+                    total: item.totalAppeals,
+                    open: item.openAppeals,
+                    inProgress: item.inProgressAppeals,
+                    closed: item.closedAppeals
+                },
+                percentage: {
+                    open: item.totalAppeals > 0 ? ((item.openAppeals / item.totalAppeals) * 100).toFixed(1) : 0,
+                    inProgress: item.totalAppeals > 0 ? ((item.inProgressAppeals / item.totalAppeals) * 100).toFixed(1) : 0,
+                    closed: item.totalAppeals > 0 ? ((item.closedAppeals / item.totalAppeals) * 100).toFixed(1) : 0
+                }
+            }));
+
+            // Filter sectors based on user role
+            let availableSectors = sectorsData;
+            if (userRole === 'sector_admin' && userSector) {
+                availableSectors = sectorsData.filter(s => s.sector === userSector);
+            }
+
+            res.json({
+                success: true,
+                message: 'Mavjud sektorlar va ularning statistikalari',
+                data: {
+                    sectors: availableSectors,
+                    userAccess: {
+                        role: userRole,
+                        sector: userSector,
+                        canAccessAll: ['super_admin', 'admin'].includes(userRole),
+                        sectorRestricted: userRole === 'sector_admin'
+                    },
+                    totalSectors: availableSectors.length,
+                    totalAppeals: availableSectors.reduce((sum, s) => sum + s.counts.total, 0)
+                },
+                timestamp: new Date().toISOString()
+            });
+
+        } catch (error) {
+            logger.error('Error fetching available sectors:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Sektorlar ro\'yxatini olishda xato yuz berdi',
+                error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            });
+        }
+    }
+
+    // Get only sector admin appeals (filtered by sector)
+    async getSectorAdminAppeals(req, res, next) {
+        try {
+            const { sector } = req.params;
+            const {
+                page = 1,
+                limit = 10,
+                status,
+                type,
+                priority,
+                search,
+                sortBy = 'createdAt',
+                sortOrder = 'desc'
+            } = req.query;
+
+            // Validate sector parameter
+            const validSectors = ['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other'];
+            if (!validSectors.includes(sector)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Noto'g'ri sektor. Ruxsat berilgan sektorlar: ${validSectors.join(', ')}`
+                });
+            }
+
+            // Check user permissions for sector access
+            const userRole = req.user?.role;
+            const userSector = req.user?.sector;
+
+            const accessCheck = await AppealsController.validateSectorAccess(userRole, userSector, sector);
+            if (!accessCheck.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: accessCheck.message || 'Sektor murojaatlariga kirish huquqi yo\'q'
+                });
+            }
+
+            // Build filter object
+            const filter = { sector: sector };
+            
+            if (status) filter.status = status;
+            if (type) filter.type = type;
+            if (priority) filter.priority = priority;
+            
+            // Search functionality
+            if (search) {
+                filter.$or = [
+                    { title: { $regex: search, $options: 'i' } },
+                    { message: { $regex: search, $options: 'i' } },
+                    { firstName: { $regex: search, $options: 'i' } },
+                    { lastName: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ];
+            }
+
+            // Calculate pagination
+            const skip = (parseInt(page) - 1) * parseInt(limit);
+            const sortOptions = {};
+            sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+            // Get total count for pagination
+            const totalCount = await Appeal.countDocuments(filter);
+            const totalPages = Math.ceil(totalCount / parseInt(limit));
+
+            // Get appeals with pagination
+            const appeals = await Appeal.find(filter)
+                .populate('adminResponse.respondedBy', 'firstName lastName email')
+                .sort(sortOptions)
+                .skip(skip)
+                .limit(parseInt(limit))
+                .lean();
+
+            // Get sector-specific statistics
+            const sectorStats = await Appeal.aggregate([
+                { $match: { sector } },
+                {
+                    $group: {
+                        _id: '$status',
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            // Get additional sector information
+            const sectorInfo = {
+                sector,
+                sectorName: AppealsController.formatSectorName(sector),
+                totalAppeals: totalCount,
+                accessLevel: accessCheck.reason,
+                availableFilters: {
+                    statuses: ['open', 'in_progress', 'waiting_response', 'closed', 'rejected'],
+                    types: ['complaint', 'suggestion', 'question', 'request', 'appreciation', 'other'],
+                    priorities: ['low', 'medium', 'high', 'urgent']
+                }
+            };
+
+            res.json({
+                success: true,
+                message: `${sectorInfo.sectorName} sektoridagi murojaatlar muvaffaqiyatli olindi`,
+                data: {
+                    appeals,
+                    sector: sectorInfo,
+                    statistics: {
+                        totalAppeals: totalCount,
+                        byStatus: sectorStats,
+                        byType: await Appeal.aggregate([
+                            { $match: { sector } },
+                            { $group: { _id: '$type', count: { $sum: 1 } } }
+                        ]),
+                        byPriority: await Appeal.aggregate([
+                            { $match: { sector } },
+                            { $group: { _id: '$priority', count: { $sum: 1 } } }
+                        ])
+                    }
+                },
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages,
+                    totalCount,
+                    hasNextPage: parseInt(page) < totalPages,
+                    hasPrevPage: parseInt(page) > 1,
+                    limit: parseInt(limit),
+                    nextPage: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+                    prevPage: parseInt(page) > 1 ? parseInt(page) - 1 : null
+                },
+                filters: {
+                    sector,
+                    status: status || 'all',
+                    type: type || 'all',
+                    priority: priority || 'all',
+                    search: search || '',
+                    sortBy,
+                    sortOrder
+                },
+                metadata: {
+                    timestamp: new Date().toISOString(),
+                    responseTime: Date.now(),
+                    userRole,
+                    accessLevel: accessCheck.reason
+                }
+            });
+
+        } catch (error) {
+            logger.error('Error fetching sector admin appeals:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Sektor murojaatlarini olishda xato yuz berdi',
+                error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            });
+        }
+    }
+    
+
+
 
     // Get single appeal by ID
     async getApealById(req, res, next) {
