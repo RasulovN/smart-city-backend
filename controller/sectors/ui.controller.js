@@ -1,4 +1,5 @@
 const sector = require('../../models/sector');
+const Company = require('../../models/company');
 
 class UiController {
 
@@ -30,6 +31,73 @@ class UiController {
             });
         }
     }
+
+  // Get all companies with filtering, pagination, and search
+            async getAllCompanies(req, res, next) {
+                try {
+                    const {
+                        page = 1,
+                        limit = 10,
+                        sector,
+                        type,
+                        isActive,
+                        search,
+                        sortBy = 'createdAt',
+                        sortOrder = 'desc'
+                    } = req.query;
+
+                    const filter = {};
+
+                    if (sector) filter.sector = sector;
+                    if (type) filter.type = type;
+                    if (isActive !== undefined) {
+                        filter.isActive = isActive === 'true';
+                    }
+
+                    if (search) {
+                        filter.$or = [
+                            { name: { $regex: search, $options: 'i' } },
+                            { description: { $regex: search, $options: 'i' } },
+                            { inn: { $regex: search, $options: 'i' } }
+                        ];
+                    }
+
+                    const skip = (parseInt(page) - 1) * parseInt(limit);
+                    const sort = {};
+                    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+                    // SELECT faqat kerakli fieldlar
+                    const companies = await Company.find(filter)
+                        .select("name slug description sector")   // 👈 faqat shu fieldlar qaytadi
+                        .sort(sort)
+                        .skip(skip)
+                        .limit(parseInt(limit));
+
+                    const total = await Company.countDocuments(filter);
+                    const totalPages = Math.ceil(total / parseInt(limit));
+
+                    res.status(200).json({
+                        success: true,
+                        message: 'Organizations retrieved successfully',
+                        data: {
+                            companies,
+                            pagination: {
+                                currentPage: parseInt(page),
+                                totalPages,
+                                totalItems: total,
+                                itemsPerPage: parseInt(limit),
+                                hasNextPage: parseInt(page) < totalPages,
+                                hasPrevPage: parseInt(page) > 1
+                            }
+                        }
+                    });
+
+                } catch (error) {
+                    next(error);
+                }
+            }
+
+   
 }
 
 module.exports = new UiController();

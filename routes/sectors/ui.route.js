@@ -6,6 +6,7 @@ const uiController = require('../../controller/sectors/ui.controller');
 
 
 router.get('/sectors', uiController.getAllSectors);
+router.get('/companies', uiController.getAllCompanies);
 
 router.get('/statistika', uiController.getAllSectors);
 

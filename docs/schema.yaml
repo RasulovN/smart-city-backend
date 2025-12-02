@@ -375,6 +375,3 @@ components:
         default: 20
       description: Number of items per page
 
-tags:
-  - name: Common
-    description: Common schemas and responses used across all modules

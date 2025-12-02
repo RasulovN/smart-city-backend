@@ -212,6 +212,7 @@ const options = {
   },
   // Only load YAML files, no JSDoc from route files
   apis: [
+    "./routes/**/*.js",
     "./docs/**/*.yaml",
     "./docs/**/*.yml",
   ],

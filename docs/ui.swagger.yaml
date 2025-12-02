@@ -1,9 +1,9 @@
-# Smart City UI API Documentation
+# docs/ui.swagger.yaml
 openapi: 3.0.3
 info:
-  title: Smart City UI API
+  title: Smart City – UI API
   version: 1.0.0
-  description: User Interface endpoints for smart city management system
+  description: Frontend (UI) uchun maxsus endpointlar – sektorlar, tashkilotlar va statistika
 
 servers:
   - url: http://localhost:4000/api
@@ -11,44 +11,85 @@ servers:
   - url: https://45.138.158.158/api
     description: Production server
 
+tags:
+  - name: UI
+    description: User Interface uchun maxsus endpointlar (public)
+
 components:
   schemas:
-    Sector:
+    # ── SECTOR ─────────────────────────────────────
+    SectorSimple:
       type: object
       properties:
-        _id:
-          type: string
-          example: "64a1b2c3d4e5f6789abcdef"
         name:
           type: string
-          example: "Infrastructure"
+          example: "Transport"
         slug:
           type: string
-          example: "infrastructure"
-        description:
-          type: string
-          example: "Infrastructure management and maintenance"
-        isActive:
-          type: boolean
-          example: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+          example: "transport"
 
-    SectorList:
+    SectorListResponse:
       type: object
       properties:
         sectors:
           type: array
           items:
-            $ref: '#/components/schemas/Sector'
-        count:
+            $ref: '#/components/schemas/SectorSimple'
+        total:
           type: integer
-          example: 8
+          example: 9
 
+    # ── COMPANY ─────────────────────────────────────
+    CompanySimple:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "671a2f3c9d1e4f5a6b7c8d9e"
+        name:
+          type: string
+          example: "Toshkent Metropoliteni"
+        slug:
+          type: string
+          example: "toshkent-metropoliteni"
+        description:
+          type: string
+          example: "Toshkent shahri metropoliteni"
+        sector:
+          type: string
+          enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+          example: transport
+
+    CompanyListResponse:
+      type: object
+      properties:
+        companies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanySimple'
+        pagination:
+          type: object
+          properties:
+            currentPage:
+              type: integer
+              example: 1
+            totalPages:
+              type: integer
+              example: 12
+            totalItems:
+              type: integer
+              example: 118
+            itemsPerPage:
+              type: integer
+              example: 10
+            hasNextPage:
+              type: boolean
+              example: true
+            hasPrevPage:
+              type: boolean
+              example: false
+
+    # ── COMMON ─────────────────────────────────────
     ApiResponse:
       type: object
       properties:
@@ -57,51 +98,111 @@ components:
           example: true
         message:
           type: string
-          example: "Sectors retrieved successfully"
+          example: "Ma'lumotlar muvaffaqiyatli olindi"
         data:
           type: object
           nullable: true
-          description: "Response data (varies by endpoint)"
 
   responses:
     Success:
-      description: Operation successful
+      description: Muvaffaqiyatli javob
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiResponse'
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponse'
-          example:
-            success: false
-            message: "Invalid request parameters"
-    InternalError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiResponse'
-          example:
-            success: false
-            message: "Internal server error"
 
-tags:
-  - name: UI
-    description: User interface endpoints
+    BadRequest:
+      description: Noto'g'ri so'rov
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Noto'g'ri parametrlar"
+
+    InternalError:
+      description: Server xatosi
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "Server xatosi yuz berdi"
+
+  parameters:
+    pageQuery:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Sahifa raqami
+    limitQuery:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      description: Sahifada nechta element
+    sectorQuery:
+      name: sector
+      in: query
+      schema:
+        type: string
+        enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+      description: Sektor bo'yicha filtr
+    typeQuery:
+      name: type
+      in: query
+      schema:
+        type: string
+        enum: [government, nongovernment, other]
+      description: Tashkilot turi
+    isActiveQuery:
+      name: isActive
+      in: query
+      schema:
+        type: string
+        enum: ["true", "false"]
+      description: Faqat faol tashkilotlar (true/false)
+    searchQuery:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: Nomi, tavsifi yoki INN bo'yicha qidiruv
+    sortByQuery:
+      name: sortBy
+      in: query
+      schema:
+        type: string
+        enum: [createdAt, name, sector]
+        default: createdAt
+      description: Tartiblash maydoni
+    sortOrderQuery:
+      name: sortOrder
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      description: Tartiblash tartibi
 
 paths:
+  # 1. Faol sektorlar ro'yxati (dropdown, menu uchun)
   /ui/sectors:
     get:
       tags: [UI]
-      summary: Get all sectors
-      description: Retrieve all active sectors for UI display
+      summary: Faol sektorlarni olish
+      description: Frontend uchun faqat name va slug kerak bo'lgan sektorlar
       responses:
         '200':
-          description: Sectors retrieved successfully
+          description: Faol sektorlar ro'yxati
           content:
             application/json:
               schema:
@@ -110,18 +211,28 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/SectorList'
+                        $ref: '#/components/schemas/SectorListResponse'
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /ui/statistika:
+  # 2. Barcha tashkilotlar (filtrlar bilan)
+  /ui/companies:
     get:
       tags: [UI]
-      summary: Get sector statistics
-      description: Retrieve sector statistics for UI dashboard
+      summary: Tashkilotlar ro'yxati
+      description: UI uchun tashkilotlar katalogi – filtr, qidiruv, pagination
+      parameters:
+        - $ref: '#/components/parameters/pageQuery'
+        - $ref: '#/components/parameters/limitQuery'
+        - $ref: '#/components/parameters/sectorQuery'
+        - $ref: '#/components/parameters/typeQuery'
+        - $ref: '#/components/parameters/isActiveQuery'
+        - $ref: '#/components/parameters/searchQuery'
+        - $ref: '#/components/parameters/sortByQuery'
+        - $ref: '#/components/parameters/sortOrderQuery'
       responses:
         '200':
-          description: Statistics retrieved successfully
+          description: Tashkilotlar muvaffaqiyatli olindi
           content:
             application/json:
               schema:
@@ -130,6 +241,35 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/SectorList'
+                        type: object
+                        properties:
+                          companies:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CompanySimple'
+                          pagination:
+                            $ref: '#/components/schemas/CompanyListResponse/properties/pagination'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # 3. Statistika uchun sektorlar (hozircha /sectors bilan bir xil)
+  # Keyinchalik alohida statistika qaytarsa, yangi endpoint yaratiladi
+  /ui/statistika:
+    get:
+      tags: [UI]
+      summary: Sektorlar statistikasi uchun ma'lumot
+      description: Dashboard yoki statistika sahifasi uchun sektorlar ro'yxati (hozircha faqat faol sektorlar)
+      responses:
+        '200':
+          description: Sektorlar ro'yxati (statistika uchun)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SectorListResponse'
         '500':
           $ref: '#/components/responses/InternalError'
