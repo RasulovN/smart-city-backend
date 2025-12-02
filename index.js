@@ -33,9 +33,16 @@ swaggerSetup(app);
 
 // Middlewares
 app.use(cors({
-  origin: "*",
-  credentials: true
+  origin: [
+    "https://contol.smart-city-qarshi.uz",
+    "https://smart-city-qarshi.uz",
+    "http://localhost:5173" // local dev uchun
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
