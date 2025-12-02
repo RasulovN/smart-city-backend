@@ -1,13 +1,8 @@
-// server.js
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const os = require('os');
-const fs = require('fs');
-const https = require("https");
-const http = require("http");
 const proccess = require("process");
-
 
 const router = require("./routes/index.route");
 const swaggerSetup = require("./utils/swagger");
@@ -16,11 +11,11 @@ const connectDB = require("./db/mongo");
 const app = express();
 
 // Ports
-const HTTP_PORT = proccess.env.HTTP || 4000;
-const HTTPS_PORT = proccess.env.HTTPS || 4443; // HTTPS uchun boshqa port tavsiya qilinadi
+const PORT = proccess.env.PORT || 4000;
 
 // Get real server IP
-let serverIP = 'localhost';
+let serverIP = '45.138.158.158';
+// let serverIP = 'localhost';
 const interfaces = os.networkInterfaces();
 for (const iface of Object.values(interfaces)) {
   for (const alias of iface) {
@@ -51,8 +46,7 @@ app.use("/api", router);
 app.get("/", (req, res) => {
   res.json({
     status: "running",
-    http: `http://${serverIP}:${HTTP_PORT}`,
-    https: `https://${serverIP}:${HTTPS_PORT}`
+    url: `http://${serverIP}:${PORT}`
   });
 });
 
@@ -61,18 +55,7 @@ app.use((req, res) => {
   res.status(404).json({ message: "Endpoint not found" });
 });
 
-// Create HTTPS certificates
-const httpsOptions = {
-  key: fs.readFileSync('./server.key'),
-  cert: fs.readFileSync('./server.cert')
-};
-
-// Start HTTP Server
-http.createServer(app).listen(HTTP_PORT, "0.0.0.0", () => {
-  console.log(`🌐 HTTP running on: http://${serverIP}:${HTTP_PORT}`);
-});
-
-// Start HTTPS Server
-https.createServer(httpsOptions, app).listen(HTTPS_PORT, "0.0.0.0", () => {
-  console.log(`🔐 HTTPS running on: https://${serverIP}:${HTTPS_PORT}`);
+// Start Server (no HTTPS here!)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
 });
