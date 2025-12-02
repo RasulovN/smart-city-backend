@@ -33,11 +33,7 @@ swaggerSetup(app);
 
 // Middlewares
 app.use(cors({
-  origin: [
-    "https://contol.smart-city-qarshi.uz",
-    "https://smart-city-qarshi.uz",
-    "http://localhost:5173" // local dev uchun
-  ],
+  origin:  "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
