@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const User = require('./models/user');
 const config = require('./config');
 
+
+
+// sada
 // Seed super admin user
 const seedSuperAdmin = async () => {
   try {
