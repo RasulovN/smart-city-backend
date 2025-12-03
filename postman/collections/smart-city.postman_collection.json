@@ -29,7 +29,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "raw": "http://api.smart-city-qarshi.uz/api/admin/users",
               "protocol": "http",
               "host": [
                 "45",
@@ -66,7 +66,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/login",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/login",
               "protocol": "http",
               "host": [
                 "45",
@@ -108,7 +108,7 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "raw": "http://api.smart-city-qarshi.uz/api/admin/users",
               "protocol": "http",
               "host": [
                 "45",
@@ -150,7 +150,7 @@
               "raw": ""
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/admin/users/692930dacf38478c8349ef65",
+              "raw": "http://api.smart-city-qarshi.uz/api/admin/users/692930dacf38478c8349ef65",
               "protocol": "http",
               "host": [
                 "45",
@@ -195,7 +195,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "raw": "http://api.smart-city-qarshi.uz/api/admin/users",
               "protocol": "http",
               "host": [
                 "45",
@@ -239,7 +239,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/admin/users",
+              "raw": "http://api.smart-city-qarshi.uz/api/admin/users",
               "protocol": "http",
               "host": [
                 "45",
@@ -279,7 +279,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/login",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/login",
               "protocol": "http",
               "host": [
                 "45",
@@ -323,7 +323,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/logout",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/logout",
               "protocol": "http",
               "host": [
                 "45",
@@ -367,7 +367,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/change-password",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/change-password",
               "protocol": "http",
               "host": [
                 "45",
@@ -411,7 +411,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/refresh-token",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/refresh-token",
               "protocol": "http",
               "host": [
                 "45",
@@ -458,7 +458,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/profile",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/profile",
               "protocol": "http",
               "host": [
                 "45",
@@ -506,7 +506,7 @@
               "raw": ""
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/auth/sectors/appeals/overview",
+              "raw": "http://api.smart-city-qarshi.uz/api/auth/sectors/appeals/overview",
               "protocol": "http",
               "host": [
                 "45",
@@ -552,7 +552,7 @@
               }
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/sectors/appeals",
+              "raw": "http://api.smart-city-qarshi.uz/api/sectors/appeals",
               "protocol": "http",
               "host": [
                 "45",
@@ -594,7 +594,7 @@
               "raw": ""
             },
             "url": {
-              "raw": "http://45.138.158.158:4000/api/sectors/appeals",
+              "raw": "http://api.smart-city-qarshi.uz/api/sectors/appeals",
               "protocol": "http",
               "host": [
                 "45",
