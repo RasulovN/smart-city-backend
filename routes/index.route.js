@@ -15,6 +15,9 @@ router.use("/sectors", require("./sector.route.js"));
 // UI routes
 router.use("/ui", require("./sectors/ui.route"));
 
+// Test routes (PostgreSQL)
+router.use("/test", require("./test.route"));
+
 
 
 

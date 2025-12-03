@@ -7,6 +7,7 @@ const proccess = require("process");
 const router = require("./routes/index.route");
 const swaggerSetup = require("./utils/swagger");
 const connectDB = require("./db/mongo");
+const { prisma, connectPostgres } = require("./db/postgres");
 
 const app = express();
 
@@ -27,8 +28,7 @@ for (const iface of Object.values(interfaces)) {
   }
 }
 
-// Connect DB
-connectDB();
+
 swaggerSetup(app);
 
 // Middlewares
@@ -60,8 +60,34 @@ app.use((req, res) => {
 });
 
 // Start Server (no HTTPS here!)
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
-  console.log(`🚀 Server running on: http://${serverIP}:${PORT}/api-docs`);
-  console.log(`🚀 API running on: https://api.smart-city-qarshi.uz/api-docs`);
-});
+// app.listen(PORT, "0.0.0.0", () => {
+//   console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
+//   console.log(`🚀 Server running on: http://${serverIP}:${PORT}/api-docs`);
+//   console.log(`🚀 API running on: https://api.smart-city-qarshi.uz/api-docs`);
+// });
+
+
+async function start() {
+  try {
+    // Connect MongoDB
+    await connectDB();
+    console.log('MongoDB connected');
+    
+    // Connect PostgreSQL (Prisma)
+    await connectPostgres();
+
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
+      console.log(`🚀 Server running on: http://${serverIP}:${PORT}/api-docs`);
+      console.log(`🚀 API running on: https://api.smart-city-qarshi.uz/api-docs`);
+    });
+    // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    } catch (err) {
+    console.error('Failed to start', err);
+    process.exit(1);
+    }
+  }
+
+
+start();
