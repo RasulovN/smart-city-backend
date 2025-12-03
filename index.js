@@ -11,6 +11,9 @@ const { prisma, connectPostgres } = require("./db/postgres");
 
 const app = express();
 
+
+
+connectDB();
 // Ports
 const PORT = proccess.env.PORT || 4000;
 
@@ -70,8 +73,8 @@ app.use((req, res) => {
 async function start() {
   try {
     // Connect MongoDB
-    await connectDB();
-    console.log('MongoDB connected');
+    // await connectDB();
+    // console.log('MongoDB connected');
     
     // Connect PostgreSQL (Prisma)
     // await connectPostgres();
