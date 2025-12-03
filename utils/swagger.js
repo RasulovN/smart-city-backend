@@ -145,7 +145,7 @@ const options = {
         description: "Development server",
       },
       {
-        url: "https://45.138.158.158/api",
+        url: "https://api.smart-city-qarshi.uz/api",
         description: "Production server",
       },
     ],

@@ -18,7 +18,7 @@ connectDB();
 const PORT = proccess.env.PORT || 4000;
 
 // Get real server IP
-let serverIP = '45.138.158.158';
+let serverIP = 'api.smart-city-qarshi.uz';
 
 // let serverIP = 'localhost';
 const interfaces = os.networkInterfaces();
