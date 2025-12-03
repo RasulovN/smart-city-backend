@@ -32,11 +32,11 @@ for (const iface of Object.values(interfaces)) {
 swaggerSetup(app);
 
 // Middlewares
-app.use(cors({
-  origin: ["*", "https://smart-city-qarshi.uz", "https://api.smart-city-qarshi.uz", "http://localhost:5173", "http://127.0.0.1:5173", "https://control.smart-city-qarshi.uz"],
-  methods: ["GET","POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type","Authorization"]
-}));
+// app.use(cors({
+//   origin: ["*", "https://smart-city-qarshi.uz", "https://api.smart-city-qarshi.uz", "http://localhost:5173", "http://127.0.0.1:5173", "https://control.smart-city-qarshi.uz"],
+//   methods: ["GET","POST","PUT","DELETE"],
+//   allowedHeaders: ["Content-Type","Authorization"]
+// }));
 
 
 
@@ -74,7 +74,7 @@ async function start() {
     console.log('MongoDB connected');
     
     // Connect PostgreSQL (Prisma)
-    await connectPostgres();
+    // await connectPostgres();
 
 
     app.listen(PORT, "0.0.0.0", () => {
