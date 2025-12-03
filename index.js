@@ -35,34 +35,35 @@ for (const iface of Object.values(interfaces)) {
 swaggerSetup(app);
 
 // Middlewares
-// app.options("*", cors());
 
-const allowedOrigins = [
-  "https://control.smart-city-qarshi.uz",
-  "https://api.smart-city-qarshi.uz",
-  "https://smart-city-qarshi.uz",
-  "http://localhost:5173"
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true)
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
-
+// const allowedOrigins = [
+//   "https://control.smart-city-qarshi.uz",
+//   "https://control.smart-city-qarshi.uz/login",
+//   "https://api.smart-city-qarshi.uz",
+//   "https://smart-city-qarshi.uz",
+//   "http://localhost:5173"
+// ];
 
 // app.use(cors({
-//   origin: ["*", "https://smart-city-qarshi.uz", "https://api.smart-city-qarshi.uz", "http://localhost:5173", 
-//     "http://127.0.0.1:5173", "https://control.smart-city-qarshi.uz", "https://control.smart-city-qarshi.uz/*"],
-//   methods: ["GET","POST","PUT","DELETE"],
-//   allowedHeaders: ["Content-Type","Authorization"],
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true)
+//     } else {
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
 //   credentials: true
 // }));
+
+// app.options("*", cors());
+
+app.use(cors({
+  origin: ["*", "https://smart-city-qarshi.uz", "https://api.smart-city-qarshi.uz", "http://localhost:5173", 
+    "http://127.0.0.1:5173", "https://control.smart-city-qarshi.uz", "https://control.smart-city-qarshi.uz/*"],
+  methods: ["GET","POST","PUT","DELETE"],
+  allowedHeaders: ["Content-Type","Authorization"],
+  credentials: false
+}));
 
 
 
