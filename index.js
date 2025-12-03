@@ -33,11 +33,11 @@ swaggerSetup(app);
 
 // Middlewares
 app.use(cors({
-  origin:  "*",
-  // credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: ["*", "https://smart-city-qarshi.uz", "https://api.smart-city-qarshi.uz", "http://localhost:5173", "http://127.0.0.1:5173", "https://control.smart-city-qarshi.uz"],
+  methods: ["GET","POST","PUT","DELETE"],
+  allowedHeaders: ["Content-Type","Authorization"]
 }));
+
 
 
 app.use(express.json({ limit: '10mb' }));
