@@ -8,12 +8,16 @@ const router = require("./routes/index.route");
 const swaggerSetup = require("./utils/swagger");
 const connectDB = require("./db/mongo");
 const { prisma, connectPostgres } = require("./db/postgres");
+const { startEducationSockets } = require('./getServer/education');
 
 const app = express();
 
 
 
 connectDB();
+
+
+startEducationSockets();
 // Ports
 const PORT = proccess.env.PORT || 4000;
 
@@ -61,17 +65,22 @@ app.get("/", (req, res) => {
 });
 
 // 404
-app.use((req, res) => {
-  res.status(404).json({ message: "Endpoint not found" });
-});
-
-// Start Server (no HTTPS here!)
-// app.listen(PORT, "0.0.0.0", () => {
-//   console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
-//   console.log(`🚀 Server running on: http://${serverIP}:${PORT}/api-docs`);
-//   console.log(`🚀 API running on: https://api.smart-city-qarshi.uz/api-docs`);
+// app.use((req, res) => {
+//   res.status(404).json({ message: "Endpoint not found" });
 // });
 
+
+
+
+
+
+// HTML ko‘rinishda chiqaruvchi route
+
+
+
+
+
+ 
 
 async function start() {
   try {
