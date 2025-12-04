@@ -9,6 +9,10 @@ router.get('/sectors', uiController.getAllSectors);
 router.get('/companies', uiController.getAllCompanies);
 
 router.get('/statistika', uiController.getAllSectors);
+// appelas statistika
+// router.get('/appeals-statistika', uiController.getAppealsStatistics);
+
+
 
 
 module.exports = router;

@@ -97,7 +97,7 @@ const validateQuery = [
 ];
 
 const validateSectorParam = [
-    param('sector').isIn(['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other'])
+    param('sector').isIn(['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other', "appeals", "utilities"])
         .withMessage('Noto\'g\'ri sektor. Ruxsat berilgan sektorlar: infrastructure, environment, ecology, transport, health, education, social, economic, other')
 ];
 

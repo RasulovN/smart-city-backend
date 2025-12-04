@@ -1,5 +1,6 @@
 const sector = require('../../models/sector');
 const Company = require('../../models/company');
+const Appeal = require('../../models/appeals');
 
 class UiController {
 
@@ -96,6 +97,48 @@ class UiController {
                     next(error);
                 }
             }
+
+
+    // Appeals statistics for UI
+    async getAppealsStatistics(req, res) {
+        try {
+            const stats = await Appeal.aggregate([
+                {
+                    $group: {
+                        _id: '$status',
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const total = stats.reduce((sum, item) => sum + item.count, 0);
+            const viewed = stats.find(s => s._id === 'waiting_response')?.count || 0;
+            const inProgress = stats.find(s => s._id === 'in_progress')?.count || 0;
+            const rejected = stats.find(s => s._id === 'rejected')?.count || 0;
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    total,
+                    viewed,
+                    in_progress: inProgress,
+                    rejected
+                },
+                message: 'Appeals statistics retrieved successfully'
+            });
+        } catch (error) {
+            console.error('Error in getAppealsStatistics:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to retrieve appeals statistics',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
+    }
+
+    // get notifications for UI
+    
+
 
    
 }

@@ -100,4 +100,7 @@ router.get('/companies/sector/:sector', verifyToken, isAdmin, companyController.
 // Get companies by type (government/non-government) (Admin & Super Admin)
 router.get('/companies/type/:type', verifyToken, isAdmin, companyController.getCompaniesByType);
 
+
+
+
 module.exports = router;

@@ -5,19 +5,21 @@ const os = require('os');
 const proccess = require("process");
 
 const router = require("./routes/index.route");
+const notificationRoutes = require("./routes/notification.route");
 const swaggerSetup = require("./utils/swagger");
 const connectDB = require("./db/mongo");
 const { prisma, connectPostgres } = require("./db/postgres");
 const { startEducationSockets } = require('./getServer/education');
+const { startCleanupJob } = require('./cron/cleanup');
 
 const app = express();
-
 
 
 connectDB();
 
 
 startEducationSockets();
+startCleanupJob();
 // Ports
 const PORT = proccess.env.PORT || 4000;
 
@@ -55,6 +57,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api", router);
+app.use("/api", notificationRoutes); // Add notification routes
 
 // Health check
 app.get("/", (req, res) => {
@@ -96,6 +99,8 @@ async function start() {
       console.log(`🚀 Server running on: http://${serverIP}:${PORT}`);
       console.log(`🚀 Server running on: http://${serverIP}:${PORT}/api-docs`);
       console.log(`🚀 API running on: https://api.smart-city-qarshi.uz/api-docs`);
+      console.log(`🔔 Notification system ready`);
+      console.log(`📅 Cleanup jobs scheduled (daily at 2:00 AM)`);
     });
     // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     } catch (err) {
