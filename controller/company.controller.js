@@ -28,7 +28,7 @@ class CompanyController {
             }
 
             // Validate sector
-            const validSectors = ['infrastructure', 'environment', 'transport', 'health', 'education', 'social', 'economic', 'other', "ecology", "utilities"];
+            const validSectors = ['infrastructure', 'environment', 'transport', 'health', 'education', 'social', 'economic', 'other', "ecology", "appeals", "utilities"];
             if (!validSectors.includes(sector)) {
                 return res.status(400).json({
                     success: false,

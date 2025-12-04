@@ -83,6 +83,7 @@ class AppealsController {
                 appealId: appeal._id,
                 type: appeal.type,
                 sector: appeal.sector,
+                company: appeal.company,
                 userEmail: appeal.email
             });
 

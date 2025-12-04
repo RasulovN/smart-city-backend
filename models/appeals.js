@@ -60,6 +60,10 @@ const appealsSchema = new Schema({
             message: 'Noto\'g\'ri sektor'
         }
     },
+    company: {
+        type: String,
+        required: true, 
+    },
     priority: {
         type: String,
         enum: ['low', 'medium', 'high', 'urgent'],
