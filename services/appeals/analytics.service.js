@@ -267,7 +267,7 @@ class AnalyticsService {
         return Appeal.find()
             .sort({ createdAt: -1 })
             .limit(limit)
-            .select('title type status priority createdAt firstName lastName')
+            .select('title type status priority createdAt fullName')
             .lean();
     }
 

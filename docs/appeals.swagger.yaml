@@ -24,10 +24,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/responses/SuccessResponse'
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Appeal'
+                allOf:
+                  - $ref: '#/components/responses/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Appeal'
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
@@ -43,7 +45,7 @@ paths:
         - $ref: '#/components/parameters/status'
         - $ref: '#/components/parameters/type'
         - $ref: '#/components/parameters/sector'
-        - $ref: '#/components/parameters/priority'
+        - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/sortBy'
         - $ref: '#/components/parameters/sortOrder'
       responses:
@@ -114,6 +116,22 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Appeals]
+      summary: Murojaatni o'chirish
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/ForbiddenAdmin'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /sectors/appeals/{id}/rate:
     post:
@@ -207,7 +225,6 @@ paths:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/status'
         - $ref: '#/components/parameters/type'
-        - $ref: '#/components/parameters/priority'
         - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/sortBy'
         - $ref: '#/components/parameters/sortOrder'
@@ -270,25 +287,8 @@ paths:
           $ref: '#/components/responses/ForbiddenAdmin'
         '404':
           $ref: '#/components/responses/NotFound'
-/sectors/appeals/{id}:
-    delete:
-      tags: [Appeals]
-      summary: Murojaatni o'chirish
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/idParam'
-      responses:
-        '200':
-          $ref: '#/components/responses/SuccessResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/ForbiddenAdmin'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
-/sectors/appeals/admin/bulk-status:
+  /sectors/appeals/admin/bulk-status:
     patch:
       tags: [Appeals]
       summary: Bir nechta murojaatni bir vaqtda yangilash
@@ -322,7 +322,7 @@ paths:
           $ref: '#/components/responses/ForbiddenAdmin'
 
   # ── ANALYTICS & REPORTS ─────────────────────
-/sectors/appeals/admin/statistics:
+  /sectors/appeals/admin/statistics:
     get:
       tags: [Appeals - Analytics]
       summary: Umumiy statistika
@@ -340,7 +340,7 @@ paths:
         '200':
           $ref: '#/components/responses/SuccessResponse'
 
-/sectors/appeals/admin/dashboard:
+  /sectors/appeals/admin/dashboard:
     get:
       tags: [Appeals - Analytics]
       summary: Dashboard ma'lumotlari
@@ -352,7 +352,7 @@ paths:
         '200':
           $ref: '#/components/responses/SuccessResponse'
 
-/sectors/appeals/admin/export:
+  /sectors/appeals/admin/export:
     get:
       tags: [Appeals - Export]
       summary: CSV formatida eksport qilish
@@ -374,7 +374,7 @@ paths:
                 type: string
                 format: binary
 
-/sectors/appeals/health:
+  /sectors/appeals/health:
     get:
       tags: [Appeals]
       summary: Service health check
@@ -397,15 +397,12 @@ components:
       type: object
       properties:
         _id: { type: string }
-        firstName: { type: string }
-        lastName: { type: string }
+        fullName: { type: string }
         email: { type: string, format: email }
         phone: { type: string }
-        title: { type: string }
         message: { type: string }
         type: { type: string, enum: [complaint, suggestion, question, request, appreciation, other] }
         sector: { type: string, enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other] }
-        priority: { type: string, enum: [low, medium, high, urgent] }
         status: { type: string, enum: [open, in_progress, waiting_response, closed, rejected] }
         rating: { type: integer, minimum: 1, maximum: 5, nullable: true }
         adminResponse: { type: string, nullable: true }
@@ -419,17 +416,14 @@ components:
 
     AppealCreate:
       type: object
-      required: [firstName, lastName, title, message, type, sector]
+      required: [fullName, message, type, sector]
       properties:
-        firstName: { type: string, minLength: 2, maxLength: 50 }
-        lastName: { type: string, minLength: 2, maxLength: 50 }
+        fullName: { type: string, minLength: 2, maxLength: 50 }
         email: { type: string, format: email }
         phone: { type: string, pattern: '^[\+]?[0-9\s\-\(\)]{10,}$' }
-        title: { type: string, minLength: 5, maxLength: 200 }
         message: { type: string, minLength: 10, maxLength: 2000 }
         type: { type: string, enum: [complaint, suggestion, question, request, appreciation, other] }
         sector: { type: string, enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other] }
-        priority: { type: string, enum: [low, medium, high, urgent], default: medium }
         location:
           type: object
           properties:
@@ -525,12 +519,6 @@ components:
       schema:
         type: string
         enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
-    priority:
-      name: priority
-      in: query
-      schema:
-        type: string
-        enum: [low, medium, high, urgent]
     search:
       name: search
       in: query
@@ -541,7 +529,7 @@ components:
       in: query
       schema:
         type: string
-        enum: [createdAt, updatedAt, title, status, priority]
+        enum: [createdAt, updatedAt, status]
         default: createdAt
     sortOrder:
       name: sortOrder

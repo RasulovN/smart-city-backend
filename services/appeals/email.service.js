@@ -178,7 +178,7 @@ class EmailService {
                         <h1>✅ Murojaatingiz Qabul Qilindi</h1>
                     </div>
                     <div class="content">
-                        <h2>Hurmatli ${appeal.firstName} ${appeal.lastName}!</h2>
+                        <h2>Hurmatli ${appeal.fullName}!</h2>
                         <p>Sizning murojaatingiz muvaffaqiyatli qabul qilindi va tez orada ko'rib chiqiladi.</p>
                         
                         <h3>Murojaat tafsilotlari:</h3>
@@ -231,7 +231,7 @@ class EmailService {
                     <div class="content priority-${appeal.priority}">
                         <h2>${appeal.title}</h2>
                         <p><strong>Murojaat raqami:</strong> ${appeal._id}</p>
-                        <p><strong>Muallif:</strong> ${appeal.firstName} ${appeal.lastName}</p>
+                        <p><strong>Muallif:</strong> ${appeal.fullName}</p>
                         <p><strong>Email:</strong> ${appeal.email || 'Ko\'rsatilmagan'}</p>
                         <p><strong>Telefon:</strong> ${appeal.phone || 'Ko\'rsatilmagan'}</p>
                         <p><strong>Tur:</strong> ${this.getTypeText(appeal.type)}</p>
@@ -290,7 +290,7 @@ class EmailService {
                         
                         <h2>${appeal.title}</h2>
                         <p><strong>Murojaat raqami:</strong> ${appeal._id}</p>
-                        <p><strong>Muallif:</strong> ${appeal.firstName} ${appeal.lastName}</p>
+                        <p><strong>Muallif:</strong> ${appeal.fullName}</p>
                         <p><strong>Email:</strong> ${appeal.email || 'Ko\'rsatilmagan'}</p>
                         <p><strong>Telefon:</strong> ${appeal.phone || 'Ko\'rsatilmagan'}</p>
                         <p><strong>Tur:</strong> ${this.getTypeText(appeal.type)}</p>
@@ -349,7 +349,7 @@ class EmailService {
                         
                         <h2>${appeal.title}</h2>
                         <p><strong>Murojaat raqami:</strong> ${appeal._id}</p>
-                        <p><strong>Muallif:</strong> ${appeal.firstName} ${appeal.lastName}</p>
+                        <p><strong>Muallif:</strong> ${appeal.fullName}</p>
                         <p><strong>Email:</strong> ${appeal.email || 'Ko\'rsatilmagan'}</p>
                         <p><strong>Telefon:</strong> ${appeal.phone || 'Ko\'rsatilmagan'}</p>
                         <p><strong>Tur:</strong> ${this.getTypeText(appeal.type)}</p>
@@ -397,7 +397,7 @@ class EmailService {
                         <h1>📱 Murojaat Holati Yangilandi</h1>
                     </div>
                     <div class="content">
-                        <h2>Hurmatli ${appeal.firstName} ${appeal.lastName}!</h2>
+                        <h2>Hurmatli ${appeal.fullName}!</h2>
                         
                         <div class="status-change">
                             <p><strong>Holat o'zgartirildi:</strong></p>
@@ -445,7 +445,7 @@ class EmailService {
                         <h1>⏰ Murojaatni Kuzatib Borish</h1>
                     </div>
                     <div class="content">
-                        <h2>Hurmatli ${appeal.firstName} ${appeal.lastName}!</h2>
+                        <h2>Hurmatli ${appeal.fullName}!</h2>
                         
                         <p>Sizning murojaatingiz hali ham ko'rib chiqilmoqda. Biz sizning murojaatingizga tez orada javob beramiz.</p>
                         

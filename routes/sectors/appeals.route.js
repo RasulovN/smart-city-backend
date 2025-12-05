@@ -7,14 +7,10 @@ const router = express.Router();
  
 // Validation middleware
 const validateAppeal = [
-    body('firstName')
+    body('fullName')
         .trim()
-        .isLength({ min: 2, max: 50 })
-        .withMessage('Ism 2-50 ta belgidan iborat bo\'lishi kerak'),
-    body('lastName')
-        .trim()
-        .isLength({ min: 2, max: 50 })
-        .withMessage('Familiya 2-50 ta belgidan iborat bo\'lishi kerak'),
+        .isLength({ min: 2, max: 80 })
+        .withMessage('To\'liq ism 2-80 ta belgidan iborat bo\'lishi kerak'),
     body('email')
         .optional()
         .isEmail()
@@ -24,10 +20,10 @@ const validateAppeal = [
         .optional()
         .matches(/^[\+]?[0-9\s\-\(\)]{10,}$/)
         .withMessage('To\'g\'ri telefon raqami kiriting'),
-    body('title')
-        .trim()
-        .isLength({ min: 5, max: 200 })
-        .withMessage('Sarlavha 5-200 ta belgidan iborat bo\'lishi kerak'),
+    // body('title')
+    //     .trim()
+    //     .isLength({ min: 5, max: 200 })
+    //     .withMessage('Sarlavha 5-200 ta belgidan iborat bo\'lishi kerak'),
     body('message')
         .trim()
         .isLength({ min: 10, max: 2000 })
@@ -38,10 +34,10 @@ const validateAppeal = [
     body('sector')
         .isIn(['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other'])
         .withMessage('Noto\'g\'ri sektor'),
-    body('priority')
-        .optional()
-        .isIn(['low', 'medium', 'high', 'urgent'])
-        .withMessage('Noto\'g\'ri ustuvorlik darajasi'),
+    // body('priority')
+    //     .optional()
+    //     .isIn(['low', 'medium', 'high', 'urgent'])
+    //     .withMessage('Noto\'g\'ri ustuvorlik darajasi'),
     body('location.district')
         .optional()
         .trim()

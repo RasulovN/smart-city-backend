@@ -136,8 +136,7 @@ class AppealsController {
                 filter.$or = [
                     { title: { $regex: search, $options: 'i' } },
                     { message: { $regex: search, $options: 'i' } },
-                    { firstName: { $regex: search, $options: 'i' } },
-                    { lastName: { $regex: search, $options: 'i' } },
+                    { fullName: { $regex: search, $options: 'i' } },
                     { email: { $regex: search, $options: 'i' } }
                 ];
             }
@@ -153,7 +152,7 @@ class AppealsController {
 
             // Get appeals with pagination
             const appeals = await Appeal.find(filter)
-                .populate('adminResponse.respondedBy', 'firstName lastName email')
+                .populate('adminResponse.respondedBy', 'fullName email')
                 .sort(sortOptions)
                 .skip(skip)
                 .limit(parseInt(limit))
@@ -311,8 +310,7 @@ class AppealsController {
                 filter.$or = [
                     { title: { $regex: search, $options: 'i' } },
                     { message: { $regex: search, $options: 'i' } },
-                    { firstName: { $regex: search, $options: 'i' } },
-                    { lastName: { $regex: search, $options: 'i' } },
+                    { fullName: { $regex: search, $options: 'i' } },
                     { email: { $regex: search, $options: 'i' } }
                 ];
             }
@@ -328,7 +326,7 @@ class AppealsController {
 
             // Get appeals with pagination
             const appeals = await Appeal.find(filter)
-                .populate('adminResponse.respondedBy', 'firstName lastName email')
+                .populate('adminResponse.respondedBy', 'fullName email')
                 .sort(sortOptions)
                 .skip(skip)
                 .limit(parseInt(limit))
@@ -423,7 +421,7 @@ class AppealsController {
             const { id } = req.params;
             
             const appeal = await Appeal.findById(id)
-                .populate('adminResponse.respondedBy', 'firstName lastName email');
+                .populate('adminResponse.respondedBy', 'fullName email');
 
             if (!appeal) {
                 return res.status(404).json({
@@ -687,7 +685,7 @@ class AppealsController {
 
             const appeals = await Appeal.find({ email: userEmail })
                 .sort({ createdAt: -1 })
-                .populate('adminResponse.respondedBy', 'firstName lastName');
+                .populate('adminResponse.respondedBy', 'fullName');
 
             res.json({
                 success: true,
@@ -716,21 +714,20 @@ class AppealsController {
             if (filters.sector) filter.sector = filters.sector;
             
             const appeals = await Appeal.find(filter)
-                .populate('adminResponse.respondedBy', 'firstName lastName')
+                .populate('adminResponse.respondedBy', 'fullName')
                 .sort({ createdAt: -1 })
                 .lean();
 
             // Convert to CSV format
             const csvHeaders = [
-                'ID', 'First Name', 'Last Name', 'Email', 'Phone', 
+                'ID', 'Full Name', 'Email', 'Phone', 
                 'Title', 'Type', 'Sector', 'Priority', 'Status', 
                 'Created At', 'Updated At', 'Response', 'Responder'
             ];
 
             const csvData = appeals.map(appeal => [
                 appeal._id,
-                appeal.firstName,
-                appeal.lastName,
+                appeal.fullName,
                 appeal.email,
                 appeal.phone || '',
                 appeal.title,
@@ -742,7 +739,7 @@ class AppealsController {
                 appeal.updatedAt,
                 appeal.adminResponse?.message || '',
                 appeal.adminResponse?.respondedBy ? 
-                    `${appeal.adminResponse.respondedBy.firstName} ${appeal.adminResponse.respondedBy.lastName}` : ''
+                    ` ${appeal.adminResponse.respondedBy.fullName}` : ''
             ]);
 
             // Create CSV content
@@ -919,7 +916,7 @@ class AppealsController {
             }
 
             const appeals = await Appeal.find(filter)
-                .populate('adminResponse.respondedBy', 'firstName lastName email')
+                .populate('adminResponse.respondedBy', 'fullName email')
                 .sort({ followUpDate: 1, priority: -1 })
                 .lean();
 

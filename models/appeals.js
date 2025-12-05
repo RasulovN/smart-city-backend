@@ -2,14 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const appealsSchema = new Schema({
-    // Personal Information
-    firstName: {
-        type: String,
-        required: true,
-        trim: true,
-        maxlength: 50
-    },
-    lastName: {
+     
+    fullName: {
         type: String,
         required: true,
         trim: true,
@@ -29,13 +23,7 @@ const appealsSchema = new Schema({
         match: [/^[\+]?[0-9\s\-\(\)]{10,}$/, 'Iltimos to\'g\'ri telefon raqamini kiriting']
     },
 
-    // Appeal Information
-    title: {
-        type: String,
-        required: true,
-        trim: true,
-        maxlength: 200
-    },
+
     message: {
         type: String,
         required: true,
@@ -43,7 +31,7 @@ const appealsSchema = new Schema({
         maxlength: 2000
     },
     
-    // Classification
+    // Classification murojaat turi
     type: {
         type: String,
         required: true,
@@ -64,11 +52,11 @@ const appealsSchema = new Schema({
         type: String,
         required: true, 
     },
-    priority: {
-        type: String,
-        enum: ['low', 'medium', 'high', 'urgent'],
-        default: 'medium'
-    },
+    // priority: {
+    //     type: String,
+    //     enum: ['low', 'medium', 'high', 'urgent'],
+    //     default: 'medium'
+    // },
     
     // Status and Tracking
     status: {
@@ -150,12 +138,8 @@ const appealsSchema = new Schema({
 appealsSchema.index({ status: 1, createdAt: -1 });
 appealsSchema.index({ type: 1, sector: 1 });
 appealsSchema.index({ email: 1 });
-appealsSchema.index({ priority: 1, status: 1 });
 
-// Virtual fields
-appealsSchema.virtual('fullName').get(function() {
-    return `${this.firstName} ${this.lastName}`;
-});
+// Virtual fields - fullName is already a real field in the schema
 
 appealsSchema.virtual('isOverdue').get(function() {
     if (!this.followUpDate) return false;
@@ -180,11 +164,6 @@ appealsSchema.statics.getStatistics = function() {
             }
         }
     ]);
-};
-
-appealsSchema.statics.getByPriority = function(priority) {
-    return this.find({ priority, status: { $nin: ['closed', 'rejected'] } })
-               .sort({ createdAt: -1 });
 };
 
 // Instance methods

@@ -164,8 +164,7 @@ const options = {
           type: "object",
           properties: {
             _id: { type: "string", example: "64a1b2c3d4e5f6789abcdef" },
-            firstName: { type: "string", example: "Ali" },
-            lastName: { type: "string", example: "Valiyev" },
+            fullName: { type: "string", example: "Ali Valiyev" },
             email: { type: "string", format: "email" },
             role: {
               type: "string",
