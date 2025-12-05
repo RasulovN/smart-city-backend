@@ -8,9 +8,9 @@ const uiController = require('../../controller/sectors/ui.controller');
 router.get('/sectors', uiController.getAllSectors);
 router.get('/companies', uiController.getAllCompanies);
 
-router.get('/statistika', uiController.getAllSectors);
+router.get('/statistika', uiController.getAppealsStatistics);
 // appelas statistika
-// router.get('/appeals-statistika', uiController.getAppealsStatistics);
+router.get('/appeals-statistika', uiController.getAppealsStatistics);
 
 
 
