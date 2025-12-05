@@ -128,7 +128,7 @@ function connect() {
     stopShiftCycling(); // Stop cycling when connection closes
     setTimeout(connect, 3000);
   });
-
+// asdasd
   ws.on("error", (err) => console.error("WS xato:", err.message));
 }
 
