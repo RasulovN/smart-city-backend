@@ -129,7 +129,11 @@ function connect() {
     setTimeout(connect, 3000);
   });
 // asdasd
-  ws.on("error", (err) => console.error("WS xato:", err.message));
+  ws.on("error", (err) => 
+  {
+    // console.error("WS xato:", err.message)
+  }
+);
 }
 
 // HAR BIR SMENA + SANA UCHUN ALOHIDA SAQLAYDI → HECH QACHON YO‘QOTMAYDI!

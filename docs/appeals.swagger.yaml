@@ -219,7 +219,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+            enum: [infrastructure, environment, ecology, transport, health, education, social, economic, utilities, other]
           description: Sektor nomi
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/limit'
@@ -402,33 +402,72 @@ components:
         phone: { type: string }
         message: { type: string }
         type: { type: string, enum: [complaint, suggestion, question, request, appreciation, other] }
-        sector: { type: string, enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other] }
+        sector: { type: string, enum: [infrastructure, environment, ecology, transport, health, education, social, economic, utilities, other] }
+        company: { type: string }
         status: { type: string, enum: [open, in_progress, waiting_response, closed, rejected] }
-        rating: { type: integer, minimum: 1, maximum: 5, nullable: true }
-        adminResponse: { type: string, nullable: true }
+        rating:
+          type: object
+          nullable: true
+          properties:
+            score: { type: integer, minimum: 1, maximum: 5 }
+            feedback: { type: string }
+            ratedAt: { type: string, format: date-time }
+        adminResponse:
+          type: object
+          nullable: true
+          properties:
+            message: { type: string }
+            respondedBy: { type: string }
+            respondedAt: { type: string, format: date-time }
         location:
           type: object
           properties:
             district: { type: string }
             address: { type: string }
+            coordinates:
+              type: object
+              properties:
+                latitude: { type: number }
+                longitude: { type: number }
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename: { type: string }
+              originalName: { type: string }
+              mimetype: { type: string }
+              size: { type: integer }
+              uploadDate: { type: string, format: date-time }
+        followUpRequired: { type: boolean }
+        followUpDate: { type: string, format: date }
+        ipAddress: { type: string }
+        userAgent: { type: string }
+        viewCount: { type: integer }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
 
     AppealCreate:
       type: object
-      required: [fullName, message, type, sector]
+      required: [fullName, message, type, sector, company]
       properties:
         fullName: { type: string, minLength: 2, maxLength: 50 }
         email: { type: string, format: email }
         phone: { type: string, pattern: '^[\+]?[0-9\s\-\(\)]{10,}$' }
         message: { type: string, minLength: 10, maxLength: 2000 }
         type: { type: string, enum: [complaint, suggestion, question, request, appreciation, other] }
-        sector: { type: string, enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other] }
+        sector: { type: string, enum: [infrastructure, environment, ecology, transport, health, education, social, economic, utilities, other] }
+        company: { type: string }
         location:
           type: object
           properties:
             district: { type: string, maxLength: 100 }
             address: { type: string, maxLength: 500 }
+            coordinates:
+              type: object
+              properties:
+                latitude: { type: number }
+                longitude: { type: number }
 
     AppealStatusUpdate:
       type: object
@@ -518,7 +557,7 @@ components:
       in: query
       schema:
         type: string
-        enum: [infrastructure, environment, ecology, transport, health, education, social, economic, other]
+        enum: [infrastructure, environment, ecology, transport, health, education, social, economic, utilities, other]
     search:
       name: search
       in: query
