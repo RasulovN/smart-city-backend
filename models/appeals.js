@@ -6,7 +6,6 @@ const appealsSchema = new Schema({
     fullName: {
         type: String,
         required: true,
-        trim: true,
         maxlength:80
     },
     email: {
@@ -26,15 +25,14 @@ const appealsSchema = new Schema({
 
     message: {
         type: String,
-        required: true,
-        trim: true,
+        required: true, 
         maxlength: 2000
     },
     
     // Classification murojaat turi
     type: {
         type: String,
-        required: true,
+        required: false,
         enum: {
             values: ['complaint', 'suggestion', 'question', 'request', 'appreciation',  'other'],
             message: 'Noto\'g\'ri murojaat turi'

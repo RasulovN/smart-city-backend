@@ -26,7 +26,7 @@ const validateAppeal = [
     //     .withMessage('Sarlavha 5-200 ta belgidan iborat bo\'lishi kerak'),
     body('message')
         .trim()
-        .isLength({ min: 10, max: 2000 })
+        .isLength({ min: 4, max: 2000 })
         .withMessage('Xabar 10-2000 ta belgidan iborat bo\'lishi kerak'),
     body('type')
         .isIn(['complaint', 'suggestion', 'question', 'request', 'appreciation', 'other'])
