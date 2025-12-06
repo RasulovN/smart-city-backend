@@ -82,7 +82,7 @@ class AppealsController {
             console.log(`New appeal created: ${appeal._id}`, {
                 appealId: appeal._id,
                 type: appeal.type,
-                channel: appeal.channel || 'other',
+                channel: appeal.channel || 'call',
                 sector: appeal.sector || 'other',
                 company: appeal.company,
                 userEmail: appeal.email
@@ -238,6 +238,77 @@ class AppealsController {
             });
         }
     }
+
+    // Get appeals – faqat TELEFON orqali kelgan murojaatlar (channel: "call")
+            async getAppealsChannel(req, res, next) {
+                try {
+                    const {
+                        page = 1,
+                        limit = 10,
+                        status,
+                        type,
+                        sector,
+                        priority,
+                        search,
+                        sortBy = 'createdAt',
+                        sortOrder = 'desc'
+                    } = req.query;
+
+                    // MUHIM: Faqat channel = "call" bo'lganlarni olish
+                    const filter = { channel: "call" }; // Bu qator majburiy!
+
+                    // Qo‘shimcha filtrlar (ixtiyoriy)
+                    if (status) filter.status = status;
+                    if (type) filter.type = type;
+                    if (sector) filter.sector = sector;
+                    if (priority) filter.priority = priority;
+
+                    // Qidiruv (faqat call kanalidagilar orasida)
+                    if (search) {
+                        filter.$or = [
+                            { message: { $regex: search, $options: 'i' } },
+                            { fullName: { $regex: search, $options: 'i' } },
+                            { phone: { $regex: search, $options: 'i' } },    // telefon bo‘yicha ham qidirish
+                            { email: { $regex: search, $options: 'i' } }
+                        ];
+                    }
+
+                    // Pagination va sort
+                    const skip = (parseInt(page) - 1) * parseInt(limit);
+                    const sortOptions = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
+
+                    const totalCount = await Appeal.countDocuments(filter);
+                    const totalPages = Math.ceil(totalCount / parseInt(limit));
+
+                    const appeals = await Appeal.find(filter)
+                        .populate('adminResponse.respondedBy', 'fullName email')
+                        .sort(sortOptions)
+                        .skip(skip)
+                        .limit(parseInt(limit))
+                        .lean();
+
+                    res.json({
+                        success: true,
+                        message: "Telefon orqali kelgan murojaatlar muvaffaqiyatli yuklandi",
+                        data: appeals,
+                        pagination: {
+                            currentPage: parseInt(page),
+                            totalPages,
+                            totalCount,
+                            hasNextPage: parseInt(page) < totalPages,
+                            hasPrevPage: parseInt(page) > 1
+                        }
+                    });
+
+                } catch (error) {
+                    logger.error('Error fetching call appeals:', error);
+                    res.status(500).json({
+                        success: false,
+                        message: 'Telefon murojaatlarini olishda xato yuz berdi',
+                        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+                    });
+                }
+            }
 
     // Get available sectors with appeal counts
     async getAvailableSectors(req, res, next) {

@@ -122,6 +122,12 @@ router.get('/',
     appealsController.getAppeals
 );
 
+router.get('/channel',
+    logger,
+    validateQuery,
+    appealsController.getAppealsChannel
+);
+
 
 // Get available sectors with appeal counts
 router.get('/sectors',
