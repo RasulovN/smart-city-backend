@@ -28,6 +28,16 @@ const appealsSchema = new Schema({
         required: true, 
         maxlength: 2000
     },
+
+
+    // murojaat qilinish turi telefon orqali yoki veb-sayt orqali
+    channel: {
+        type: String,    
+        required: false,
+        enum: {
+            values: ['call', 'website', 'email', 'mobile_app', 'social_media', 'other'],  },
+        default: 'other'
+    },
     
     // Classification murojaat turi
     type: {

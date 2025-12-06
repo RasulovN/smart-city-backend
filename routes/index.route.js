@@ -9,8 +9,8 @@ router.use("/auth", require("./auth.route.js"));
 // Admin routes (protected - super admin only)
 router.use("/admin", require("./admin.route.js"));
 
-// User routes
-router.use("/users", require("./user.routes.js"));
+// mobile User routes
+router.use("/mobile-users", require("./mobileUser.routes.js"));
 
 
 // Sector routes

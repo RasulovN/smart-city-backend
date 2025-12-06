@@ -51,7 +51,7 @@ class AppealsController {
     }
 
     // Create new appeal
-    async createApeals(req, res, next) {
+    async createAppealsAdmin(req, res, next) {
         try {
             // Check validation errors
             const errors = validationResult(req);
@@ -82,6 +82,65 @@ class AppealsController {
             console.log(`New appeal created: ${appeal._id}`, {
                 appealId: appeal._id,
                 type: appeal.type,
+                channel: appeal.channel || 'other',
+                sector: appeal.sector || 'other',
+                company: appeal.company,
+                userEmail: appeal.email
+            });
+
+            res.status(201).json({
+                success: true,
+                message: 'Murojaatingiz muvaffaqiyatli yuborildi',
+                data: {
+                    id: appeal._id,
+                    referenceNumber: appeal._id,
+                    status: appeal.status,
+                    createdAt: appeal.createdAt
+                }
+            });
+
+        } catch (error) {
+            console.error('Error creating appeal:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Server xatosi yuz berdi',
+                error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            });
+        }
+    }
+    // Create new appeal
+    async createAppeals(req, res, next) {
+        try {
+            // Check validation errors
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Ma\'lumotlarni to\'g\'ri kiriting',
+                    errors: errors.array()
+                });
+            }
+
+            const appealData = {
+                ...req.body,
+                ipAddress: req.ip,
+                userAgent: req.get('User-Agent')
+            };
+
+            const appeal = new Appeal(appealData);
+            await appeal.save();
+
+            // Process notifications asynchronously
+            setImmediate(() => {
+                notificationService.processNewAppeal(appeal).catch(error => {
+                    logger.error('Error processing notifications for new appeal:', error);
+                });
+            });
+
+            console.log(`New appeal created: ${appeal._id}`, {
+                appealId: appeal._id,
+                type: appeal.type,
+                channel: appeal.channel || 'website',
                 sector: appeal.sector,
                 company: appeal.company,
                 userEmail: appeal.email
@@ -109,7 +168,7 @@ class AppealsController {
     }
 
     // Get all appeals (with filters and pagination)
-    async getApeals(req, res, next) {
+    async getAppeals(req, res, next) {
         try {
             const {
                 page = 1,

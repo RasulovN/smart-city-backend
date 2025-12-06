@@ -99,11 +99,18 @@ const validateSectorParam = [
 
 // Public routes (no authentication required)
 
+// Create Admin new appeal
+router.post('/admin',
+    logger,
+    validateAppeal,
+    appealsController.createAppealsAdmin
+);
+
 // Create new appeal
 router.post('/',
     logger,
     validateAppeal,
-    appealsController.createApeals
+    appealsController.createAppeals
 );
 
 
@@ -112,7 +119,7 @@ router.post('/',
 router.get('/',
     logger,
     validateQuery,
-    appealsController.getApeals
+    appealsController.getAppeals
 );
 
 
