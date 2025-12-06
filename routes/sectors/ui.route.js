@@ -13,6 +13,4 @@ router.get('/statistika', uiController.getAppealsStatistics);
 router.get('/appeals-statistika', uiController.getAppealsStatistics);
 
 
-
-
 module.exports = router;

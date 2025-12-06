@@ -107,6 +107,7 @@ router.post('/',
 );
 
 
+
 // Get all appeals with filters and pagination (public read access)
 router.get('/',
     logger,

@@ -1,5 +1,8 @@
 const router = require("express").Router();
 
+// #swagger.tags = ['Admin']
+// router.post("/login", adminController.login) 
+
 // Auth routes (public and protected)
 router.use("/auth", require("./auth.route.js"));
 
@@ -20,6 +23,10 @@ router.use("/schools", require("./ws/realtime.route"));
 
 // Test routes (PostgreSQL)
 router.use("/test", require("./test.route"));
+
+    
+// Notification routes
+router.use("/notifications", require("./notification.route"));
 
 
 

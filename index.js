@@ -5,12 +5,15 @@ const os = require('os');
 const proccess = require("process");
 
 const router = require("./routes/index.route");
-const notificationRoutes = require("./routes/notification.route");
-const swaggerSetup = require("./utils/swagger");
+const swaggerSetup = require("./utils/swagger"); 
+
 const connectDB = require("./db/mongo");
 const { prisma, connectPostgres } = require("./db/postgres");
 const { startEducationSockets } = require('./getServer/education');
 const { startCleanupJob } = require('./cron/cleanup');
+// const swaggerUi = require("swagger-ui-express");
+// const swaggerFile = require("./utils/swagger.json"); // autogen hosil qilgan fayl
+
 
 const app = express();
 
@@ -39,6 +42,8 @@ for (const iface of Object.values(interfaces)) {
 
 
 swaggerSetup(app);
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 
 // Middlewares
 
@@ -57,7 +62,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api", router);
-app.use("/api", notificationRoutes); // Add notification routes
 
 // Health check
 app.get("/", (req, res) => {

@@ -6,7 +6,7 @@ const OptimizedAttendance = require('../../models/OptimizedAttendance');
 
 const todayStr = new Date().toISOString().split("T")[0];
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   const { shift, date, interval, mode = "realtime" } = req.query;
 
   const selectedDate = date || todayStr;
@@ -14,14 +14,47 @@ router.get('/', (req, res) => {
   const shiftNo = shift === "0" ? null : (shift ? parseInt(shift) : null);
   const intervalVal = interval ? Math.min(Math.max(parseInt(interval), 25), 120) : (isToday ? 25 : 999999);
 
-  // Smart config: bugun bo'lsa → real-time, oldin bo'lsa → bir marta
-  schoolsSocket.setSchoolsConfig({
-    shift_no: shiftNo,
-    date: selectedDate || null,
-    interval: intervalVal
-  });
+  let latest;
+  let renderData = null;
 
-  const latest = schoolsSocket.schoolsData[0];
+  if (mode === "archive" && date) {
+    // Archive mode - get data from MongoDB
+    try {
+      if (shiftNo === null) {
+        // Get all shifts data for the selected date
+        const shiftsData = await OptimizedAttendance.getShiftsWithDetails(selectedDate);
+        if (shiftsData.shifts.all || shiftsData.shifts.shift1 || shiftsData.shifts.shift2 || shiftsData.shifts.shift3) {
+          // Combine all shifts into a single data structure
+          const allShiftsCombined = shiftsData.shifts.all || shiftsData.shifts.shift1 || shiftsData.shifts.shift2 || shiftsData.shifts.shift3;
+          renderData = allShiftsCombined || null;
+        }
+      } else {
+        // Get specific shift data
+        const shiftData = await OptimizedAttendance.getShiftData(selectedDate, shiftNo);
+        renderData = shiftData || null;
+      }
+
+      // If no specific shift data found, try to get any available data for the date
+      if (!renderData) {
+        const anyShiftData = await OptimizedAttendance.getShiftData(selectedDate, "all");
+        renderData = anyShiftData;
+      }
+
+      latest = renderData;
+    } catch (error) {
+      console.error('Archive data fetch error:', error);
+      latest = null;
+    }
+  } else {
+    // Real-time mode - use WebSocket data
+    schoolsSocket.setSchoolsConfig({
+      shift_no: shiftNo,
+      date: selectedDate || null,
+      interval: intervalVal
+    });
+
+    latest = schoolsSocket.schoolsData[0];
+  }
 
   res.send(`<!DOCTYPE html>
 <html lang="uz">
@@ -118,16 +151,27 @@ router.get('/', (req, res) => {
 });
 
 function renderStats(data, mode) {
-  if (!data) return `<div class="card"><h2>Ma'lumot yuklanmoqda...</h2></div>`;
+  if (!data) return `<div class="card"><h2>Ma'lumot ${mode === 'archive' ? 'topilmadi' : 'yuklanmoqda'}...</h2></div>`;
 
-  const rate = (data.students?.attendance_rate || 0).toFixed(2);
+  // Handle both WebSocket data and MongoDB data structures
+  const students = data.students || data.summary?.students || {};
+  const attendanceRate = students.attendance_rate || 0;
+  const presentToday = students.present_today || 0;
+  const absentToday = students.absent_today || 0;
+  
+  // Handle district data (MongoDB uses 'districts', WebSocket uses 'tumanlarda')
+  const districts = data.districts || data.tumanlarda || [];
+  // Handle city data (MongoDB uses 'cities', WebSocket uses 'shaxarlarda')
+  const cities = data.cities || data.shaxarlarda || [];
+
+  const rate = attendanceRate.toFixed(2);
 
   return `
     <div class="stats-grid">
       <div class="card"><div class="label">Davomat</div><div class="rate">${rate}%</div></div>
       <div class="card"><div class="label">Sana • Smena</div><div class="rate">${data.date} • ${data.shift_no ? data.shift_no + '-smena' : 'Barcha'}</div></div>
-      <div class="card"><div class="label">Kelgan</div><div class="rate">${(data.students?.present_today || 0).toLocaleString()}</div></div>
-      <div class="card"><div class="label">Kelmagan</div><div class="rate">${(data.students?.absent_today || 0).toLocaleString()}</div></div>
+      <div class="card"><div class="label">Kelgan</div><div class="rate">${presentToday.toLocaleString()}</div></div>
+      <div class="card"><div class="label">Kelmagan</div><div class="rate">${absentToday.toLocaleString()}</div></div>
     </div>
 
     <div style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
@@ -135,14 +179,22 @@ function renderStats(data, mode) {
         <h3>Tumanlar</h3>
         <table>
           <tr><th>Tuman</th><th>Kelgan</th><th>%</th></tr>
-          ${data.tumanlarda?.map(d => `<tr><td>${d.tuman_nomi}</td><td>${d.students_present.toLocaleString()}</td><td><strong>${d.attendance_rate.toFixed(1)}%</strong></td></tr>`).join('') || ''}
+          ${districts.map(d => {
+            const present = d.students_present || d.shifts?.all?.students_present || 0;
+            const rate = d.attendance_rate || d.shifts?.all?.attendance_rate || 0;
+            return `<tr><td>${d.tuman_nomi}</td><td>${present.toLocaleString()}</td><td><strong>${rate.toFixed(1)}%</strong></td></tr>`;
+          }).join('')}
         </table>
       </div>
       <div class="card">
         <h3>Shaharlar</h3>
         <table>
           <tr><th>Shahar</th><th>Kelgan</th><th>%</th></tr>
-          ${data.shaxarlarda?.map(d => `<tr><td>${d.shahar_nomi}</td><td>${d.students_present.toLocaleString()}</td><td><strong>${d.attendance_rate.toFixed(1)}%</strong></td></tr>`).join('') || ''}
+          ${cities.map(d => {
+            const present = d.students_present || d.shifts?.all?.students_present || 0;
+            const rate = d.attendance_rate || d.shifts?.all?.attendance_rate || 0;
+            return `<tr><td>${d.shahar_nomi}</td><td>${present.toLocaleString()}</td><td><strong>${rate.toFixed(1)}%</strong></td></tr>`;
+          }).join('')}
         </table>
       </div>
     </div>

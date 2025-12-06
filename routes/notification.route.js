@@ -13,19 +13,23 @@ const notificationController = require('../controller/notificationController');
 
 // Required API endpoints
 // POST /notifications - Create/send notification (Admin)
-router.post('/notifications', /*authMiddleware,*/ notificationController.createNotification);
+router.post('/', /*authMiddleware,*/ notificationController.createNotification);
 
 // GET /notifications - Get notifications for user (only status="new")
-router.get('/notifications', /*authMiddleware,*/ notificationController.getNotifications);
+router.get('/', /*authMiddleware,*/ notificationController.getNotifications);
+
+// read notifications
+// GET /notifications/read - Get read notifications for user (status="read")
+// router.get('/read', /*authMiddleware,*/ notificationController.getReadNotifications);
 
 // GET /notifications/mobile - Simple notifications for mobile apps (no user_id required)
-router.get('/notifications/mobile', /*authMiddleware,*/ notificationController.getMobileNotifications);
+router.get('/mobile', /*authMiddleware,*/ notificationController.getMobileNotifications);
 
 // PATCH /notifications/:id - Update notification status to success (manual)
-router.patch('/notifications/:id', /*authMiddleware,*/ notificationController.updateNotificationStatus);
+router.patch('/:id', /*authMiddleware,*/ notificationController.updateNotificationStatus);
 
 // Additional admin endpoints for management
 // GET /notifications/admin/all - Get all notifications (Admin)
-router.get('/notifications/admin/all', /*authMiddleware,*/ notificationController.getAllNotifications);
+router.get('/admin/all', /*authMiddleware,*/ notificationController.getAllNotifications);
 
 module.exports = router;
