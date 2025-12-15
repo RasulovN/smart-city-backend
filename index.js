@@ -52,9 +52,16 @@ swaggerSetup(app);
 
 app.use(cookieParser());
 app.use(cors({
-  origin: ["*", "http://localhost:5173", "http://localhost:3000", "https://admin.smart-city-qarshi.uz", "https://smart-city-qarshi.uz", "https://api.smart-city-qarshi.uz","https://contol.smart-city-qarshi.uz", "https://contol.smart-city-qarshi.uz/uz/login", ],
+  origin: [
+    "http://localhost:5173",  
+    "http://localhost:3000",  
+    "https://admin.smart-city-qarshi.uz",
+    "https://smart-city-qarshi.uz",
+    "https://api.smart-city-qarshi.uz",
+    "https://contol.smart-city-qarshi.uz"
+  ],
   methods: ["GET","POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type","Authorization"],
+  allowedHeaders: ["Content-Type","Authorization", "X-CSRF-Token"],
   credentials: true,
 }));
 

@@ -52,6 +52,32 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     default: null
+  },
+  refreshTokens: [{
+    token: {
+      type: String,
+      required: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    expiresAt: {
+      type: Date,
+      required: true
+    },
+    userAgent: {
+      type: String,
+      default: null
+    },
+    ipAddress: {
+      type: String,
+      default: null
+    }
+  }],
+  lastPasswordChange: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
@@ -106,6 +132,48 @@ UserSchema.statics.getSectorPermissions = function(sector) {
     all: ['environment', 'pollution', 'waste', 'green_spaces', 'hospitals', 'clinics', 'emergency', 'public_health', 'traffic', 'surveillance', 'emergency_response', 'public_safety']
   };
   return permissions[sector] || [];
+};
+
+// Add refresh token
+UserSchema.methods.addRefreshToken = function(token, expiresAt, userAgent = null, ipAddress = null) {
+  this.refreshTokens.push({
+    token,
+    expiresAt,
+    userAgent,
+    ipAddress
+  });
+  return this.save();
+};
+
+// Remove specific refresh token
+UserSchema.methods.removeRefreshToken = function(token) {
+  this.refreshTokens = this.refreshTokens.filter(rt => rt.token !== token);
+  return this.save();
+};
+
+// Remove all refresh tokens (logout all devices)
+UserSchema.methods.removeAllRefreshTokens = function() {
+  this.refreshTokens = [];
+  return this.save();
+};
+
+// Clean expired refresh tokens
+UserSchema.methods.cleanExpiredRefreshTokens = function() {
+  const now = new Date();
+  this.refreshTokens = this.refreshTokens.filter(rt => rt.expiresAt > now);
+  return this.save();
+};
+
+// Check if refresh token exists and is valid
+UserSchema.methods.hasValidRefreshToken = function(token) {
+  const now = new Date();
+  return this.refreshTokens.some(rt => rt.token === token && rt.expiresAt > now);
+};
+
+// Get refresh token count
+UserSchema.methods.getRefreshTokenCount = function() {
+  const now = new Date();
+  return this.refreshTokens.filter(rt => rt.expiresAt > now).length;
 };
 
 module.exports = mongoose.model("User", UserSchema);
