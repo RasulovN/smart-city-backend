@@ -24,14 +24,14 @@ router.post('/refresh-token', authController.refreshToken);
 // POST /api/auth/logout
 // Logout user and revoke current session
 // Cookies: accessToken, refreshToken, csrfToken (will be cleared)
-// CSRF protection: Required
-router.post('/logout', verifyToken, validateCSRFToken, clearCSRFToken, authController.logout);
+// CSRF protection: Not required (protected by authentication)
+router.post('/logout', verifyToken, clearCSRFToken, authController.logout);
 
 // POST /api/auth/logout-all
 // Logout from all devices
 // Cookies: accessToken, refreshToken, csrfToken (will be cleared)
-// CSRF protection: Required
-router.post('/logout-all', verifyToken, validateCSRFToken, clearCSRFToken, authController.logoutAll);
+// CSRF protection: Not required (protected by authentication)
+router.post('/logout-all', verifyToken, clearCSRFToken, authController.logoutAll);
 
 // GET /api/auth/profile
 // Get current user profile

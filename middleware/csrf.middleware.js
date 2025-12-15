@@ -53,10 +53,9 @@ function validateCSRFToken(req, res, next) {
   // These endpoints are handled separately
   const skipPaths = [
     '/api/auth/login',
-    '/api/auth/refresh-token',
-    '/api/auth/logout'
+    '/api/auth/refresh-token'
   ];
-  
+
   if (skipPaths.includes(req.path)) {
     return next();
   }
