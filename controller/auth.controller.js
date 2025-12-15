@@ -2,22 +2,52 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
 
-// Generate JWT token
-const generateToken = (user) => {
+// Generate JWT access token
+const generateAccessToken = (user) => {
   return jwt.sign(
     {
       userId: user._id,
       username: user.username,
       email: user.email,
       role: user.role,
-      sector: user.sector
+      sector: user.sector,
+      type: 'access'
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
 };
+
+// Generate JWT refresh token
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+      type: 'refresh'
+    },
+    JWT_REFRESH_SECRET,
+    { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
+  );
+};
+
+// Cookie options
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+});
+
+const getRefreshCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+});
 
 // Get allowed API routes based on role and sector
 const getAllowedRoutes = (role, sector) => {
@@ -115,11 +145,16 @@ class AuthController {
       user.lastLogin = new Date();
       await user.save();
 
-      // Generate token
-      const token = generateToken(user);
+      // Generate tokens
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
 
       // Get allowed routes based on role and sector
       const allowedRoutes = getAllowedRoutes(user.role, user.sector);
+
+      // Set cookies
+      res.cookie('accessToken', accessToken, getCookieOptions());
+      res.cookie('refreshToken', refreshToken, getRefreshCookieOptions());
 
       res.status(200).json({
         success: true,
@@ -133,7 +168,6 @@ class AuthController {
             sector: user.sector,
             lastLogin: user.lastLogin
           },
-          token,
           allowedRoutes,
           expiresIn: JWT_EXPIRES_IN
         }
@@ -151,11 +185,13 @@ class AuthController {
   // Logout
   async logout(req, res) {
     try {
-      // In a stateless JWT system, logout is handled client-side
-      // by removing the token. Here we just confirm the logout.
+      // Clear cookies
+      res.clearCookie('accessToken', getCookieOptions());
+      res.clearCookie('refreshToken', getRefreshCookieOptions());
+
       res.status(200).json({
         success: true,
-        message: 'Logout successful. Please remove the token from client storage.'
+        message: 'Logout successful.'
       });
     } catch (error) {
       console.error('Logout error:', error);
@@ -266,8 +302,21 @@ class AuthController {
   // Refresh token
   async refreshToken(req, res) {
     try {
-      const user = await User.findById(req.user.userId);
+      const { refreshToken } = req.cookies;
 
+      if (!refreshToken) {
+        return res.status(401).json({
+          success: false,
+          message: 'Refresh token not found.'
+        });
+      }
+
+      // Verify refresh token
+      const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+      
+      // Find user and check if active
+      const user = await User.findById(decoded.userId);
+      
       if (!user || !user.isActive) {
         return res.status(401).json({
           success: false,
@@ -275,18 +324,31 @@ class AuthController {
         });
       }
 
-      const token = generateToken(user);
+      // Generate new tokens
+      const newAccessToken = generateAccessToken(user);
+      const newRefreshToken = generateRefreshToken(user);
+
+      // Set new cookies
+      res.cookie('accessToken', newAccessToken, getCookieOptions());
+      res.cookie('refreshToken', newRefreshToken, getRefreshCookieOptions());
 
       res.status(200).json({
         success: true,
-        message: 'Token refreshed successfully.',
+        message: 'Tokens refreshed successfully.',
         data: {
-          token,
           expiresIn: JWT_EXPIRES_IN
         }
       });
     } catch (error) {
       console.error('Refresh token error:', error);
+      
+      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid or expired refresh token.'
+        });
+      }
+      
       res.status(500).json({
         success: false,
         message: 'Server error.',

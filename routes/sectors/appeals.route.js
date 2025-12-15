@@ -32,7 +32,7 @@ const validateAppeal = [
         .isIn(['complaint', 'suggestion', 'question', 'request', 'appreciation', 'other'])
         .withMessage('Noto\'g\'ri murojaat turi'),
     body('sector')
-        .isIn(['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other'])
+        .isIn(['infrastructure', 'environment', 'ecology', 'transport', 'health', 'education', 'social', 'economic', 'other', "appeals", "utilities"])
         .withMessage('Noto\'g\'ri sektor'),
     // body('priority')
     //     .optional()
