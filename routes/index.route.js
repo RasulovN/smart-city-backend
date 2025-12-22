@@ -32,5 +32,10 @@ router.use("/notifications", require("./notification.route"));
 
 
 
+// AI Sector Routes
+router.use("/ai", require("./ai/ai.route"));
+
+
+
 
 module.exports = router;
